@@ -3,6 +3,8 @@
 -- Pieces
 local Pawn = require(script.Parent:WaitForChild("Pieces"):WaitForChild("Pawn"))
 local Rook = require(script.Parent:WaitForChild("Pieces"):WaitForChild("Rook"))
+local Bishop = require(script.Parent:WaitForChild("Pieces"):WaitForChild("Bishop"))
+local Queen = require(script.Parent:WaitForChild("Pieces"):WaitForChild("Queen"))
 
 local Module = {}
 
@@ -23,6 +25,8 @@ local Files = {
 local CheckFuncs = {
     ["p"] = Pawn;
     ["r"] = Rook;
+    ["b"] = Bishop;
+    ["q"] = Queen;
 }
 
 function Module:GetLegalMoves(Board,Square)
