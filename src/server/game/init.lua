@@ -11,10 +11,10 @@ local Module = {
 
 function Module:NewGame()
     local Hash = HttpService:GenerateGUID(true)
-    Module.Games[Hash] = NewGame:New(Hash,"rnbqkbnr/ppppp1pp/8/8/4Pp2/8/PPPP1PPP/RNBQKBNR w KQkq e4 0 1")
+    Module.Games[Hash] = NewGame:New(Hash,"rnbqkbnr/pppppppp/8/8/R7/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1")
     PrintBoard(Module.Games[Hash])
     print("...")
-    print(Moves:GetLegalMoves(Module.Games[Hash], "f4"))
+    print(Moves:GetLegalMoves(Module.Games[Hash], "a4"))
 end
 
 function Module:GetLegalMoves(Hash,Square)

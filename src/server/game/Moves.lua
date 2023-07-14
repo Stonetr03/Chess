@@ -2,6 +2,7 @@
 
 -- Pieces
 local Pawn = require(script.Parent:WaitForChild("Pieces"):WaitForChild("Pawn"))
+local Rook = require(script.Parent:WaitForChild("Pieces"):WaitForChild("Rook"))
 
 local Module = {}
 
@@ -21,6 +22,7 @@ local Files = {
 
 local CheckFuncs = {
     ["p"] = Pawn;
+    ["r"] = Rook;
 }
 
 function Module:GetLegalMoves(Board,Square)
@@ -42,7 +44,10 @@ function Module:GetLegalMoves(Board,Square)
     if table.find(BlackPieces,Piece) then
         Color = "b"
     end
-    return CheckFuncs[string.lower(Piece)]:GetMoves(Board,File,Rank,Color)
+    -- Check if king is in check
+    local LegalMoves = CheckFuncs[string.lower(Piece)]:GetMoves(Board,File,Rank,Color)
+    -- Check if king is Still in check
+    return LegalMoves
 end
 
 return Module
