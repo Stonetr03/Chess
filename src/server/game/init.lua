@@ -3,6 +3,7 @@
 local NewGame = require(script:WaitForChild("NewGame"))
 local PrintBoard = require(script:WaitForChild("PrintBoard"))
 local HttpService = game:GetService("HttpService")
+local Moves = require(script:WaitForChild("Moves"))
 
 local Module = {
     Games = {}
@@ -10,8 +11,17 @@ local Module = {
 
 function Module:NewGame()
     local Hash = HttpService:GenerateGUID(true)
-    Module.Games[Hash] = NewGame:New("2Q5/4NN2/8/8/p2k1Q2/3B4/PPP2PPP/R3K2R b KQ - 1 34")
-    PrintBoard(Module.Games[1])
+    Module.Games[Hash] = NewGame:New(Hash,"rnbqkbnr/ppppp1pp/8/8/4Pp2/8/PPPP1PPP/RNBQKBNR w KQkq e4 0 1")
+    PrintBoard(Module.Games[Hash])
+    print("...")
+    print(Moves:GetLegalMoves(Module.Games[Hash], "f4"))
+end
+
+function Module:GetLegalMoves(Hash,Square)
+    local Board = Module.Games[Hash]
+    if Board then
+        return Moves:GetLegalMoves(Board,Square)
+    end
 end
 
 function Module:Playmove(Hash,Player,Square,Move)

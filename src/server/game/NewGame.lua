@@ -13,7 +13,7 @@ local InvertTab = {
     [8] = 1;
 }
 
-local Pieces = {"r","n","b","q","k","R","N","B","Q","K"}
+local Pieces = {"r","n","b","q","k","p","R","N","B","Q","K","P"}
 
 function Module:New(Hash,FEN,p1,p2)
     if FEN == nil then
