@@ -59,7 +59,7 @@ function Module:GetMoves(Board,File,Rank,Color)
                     end
                 end
                 if Valid == true then
-                    table.insert(Moves,"g1")
+                    table.insert(Moves,{"g1","castle","h1-f1"})
                 end
             end
             if string.find(Board.Castle,"Q") then
@@ -74,7 +74,7 @@ function Module:GetMoves(Board,File,Rank,Color)
                     end
                 end
                 if Valid == true then
-                    table.insert(Moves,"c1")
+                    table.insert(Moves,{"c1","castle","a1-d1"})
                 end
             end
         end
@@ -108,7 +108,7 @@ function Module:GetMoves(Board,File,Rank,Color)
                     end
                 end
                 if Valid == true then
-                    table.insert(Moves,"g8")
+                    table.insert(Moves,{"g8","castle","h8-f8"})
                 end
             end
             if string.find(Board.Castle,"q") then
@@ -123,7 +123,7 @@ function Module:GetMoves(Board,File,Rank,Color)
                     end
                 end
                 if Valid == true then
-                    table.insert(Moves,"c8")
+                    table.insert(Moves,{"c8","castle","a8-d8"})
                 end
             end
         end

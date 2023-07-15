@@ -22,7 +22,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         -- Check White Piece
         -- Check NE
         for i = 1,7,1 do
-            local Sqr = {File+1,Rank+i}
+            local Sqr = {File+i,Rank+i}
             if Sqr[1] > 8 or Sqr[2] > 8 then
                 break
             else
@@ -42,7 +42,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         end
         -- Check NW
         for i = 1,7,1 do
-            local Sqr = {File-1,Rank+i}
+            local Sqr = {File-i,Rank+i}
             if Sqr[1] < 1 or Sqr[2] > 8 then
                 break
             else
@@ -62,7 +62,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         end
         -- Check SE
         for i = 1,7,1 do
-            local Sqr = {File+1,Rank-i}
+            local Sqr = {File+i,Rank-i}
             if Sqr[1] > 8 or Sqr[2] < 1 then
                 break
             else
@@ -82,7 +82,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         end
         -- Check SW
         for i = 1,7,1 do
-            local Sqr = {File-1,Rank-i}
+            local Sqr = {File-i,Rank-i}
             if Sqr[1] < 1 or Sqr[2] < 1 then
                 break
             else
@@ -104,7 +104,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         -- Check Black Piece
         -- Check NE
         for i = 1,7,1 do
-            local Sqr = {File+1,Rank+i}
+            local Sqr = {File+i,Rank+i}
             if Sqr[1] > 8 or Sqr[2] > 8 then
                 break
             else
@@ -124,7 +124,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         end
         -- Check NW
         for i = 1,7,1 do
-            local Sqr = {File-1,Rank+i}
+            local Sqr = {File-i,Rank+i}
             if Sqr[1] < 1 or Sqr[2] > 8 then
                 break
             else
@@ -144,7 +144,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         end
         -- Check SE
         for i = 1,7,1 do
-            local Sqr = {File+1,Rank-i}
+            local Sqr = {File+i,Rank-i}
             if Sqr[1] > 8 or Sqr[2] < 1 then
                 break
             else
@@ -164,7 +164,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         end
         -- Check SW
         for i = 1,7,1 do
-            local Sqr = {File-1,Rank-i}
+            local Sqr = {File-i,Rank-i}
             if Sqr[1] < 1 or Sqr[2] < 1 then
                 break
             else

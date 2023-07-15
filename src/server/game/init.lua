@@ -14,9 +14,7 @@ function Module:NewGame()
     local Hash = HttpService:GenerateGUID(true)
     Module.Games[Hash] = NewGame:New(Hash)
     PrintBoard(Module.Games[Hash])
-    print("...")
-    print(Moves:GetLegalMoves(Module.Games[Hash], "e4"))
-    Module:Playmove(Hash,"White","e2","e4")
+    return Hash
 end
 
 function Module:GetLegalMoves(Hash,Square)
@@ -29,7 +27,12 @@ end
 function Module:Playmove(Hash,Player,Square,Move)
     local Board = Module.Games[Hash]
     if Board then
-        PlayMove:Move(Board,Player,Square,Move)
+        local Moved,New = PlayMove:Move(Board,Player,Square,Move)
+        if Moved == true then
+            Module.Games[Hash] = New
+        end
+
+        PrintBoard(Module.Games[Hash])
     end
 end
 

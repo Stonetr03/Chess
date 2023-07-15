@@ -1,3 +1,16 @@
 -- Stonetr03
 
-require(game.ServerScriptService:WaitForChild("Server"):WaitForChild("game")):NewGame()
+local Chess = require(game.ServerScriptService:WaitForChild("Server"):WaitForChild("game"))
+local Hash = Chess:NewGame()
+
+local PlayMove = Instance.new("BindableEvent",script)
+PlayMove.Name = "Move"
+PlayMove.Event:Connect(function(p,sqr,mov)
+    Chess:Playmove(Hash,p,sqr,mov)
+end)
+
+local GetLegal = Instance.new("BindableEvent",script)
+GetLegal.Name = "Legal"
+GetLegal.Event:Connect(function(sqr)
+    print(Chess:GetLegalMoves(Hash,sqr))
+end)

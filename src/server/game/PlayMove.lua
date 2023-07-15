@@ -18,6 +18,13 @@ local Files = {
     ["h"] = 8;
 }
 
+function Module:SetSquare(Board,Square,Piece)
+    local File = Files[string.lower(string.sub(Square,1,1))]
+    local Rank = tonumber(string.sub(Square,2,2));
+    Board.Board[Rank] = string.sub(Board.Board[Rank],0,File-1) .. Piece .. string.sub(Board.Board[Rank],File+1,9)
+    return Board
+end
+
 function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSquare
     -- Check Player
     local KingPiece = "K"
@@ -34,6 +41,8 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     -- Check if square is piece
     local File = Files[string.lower(string.sub(Square,1,1))]
     local Rank = tonumber(string.sub(Square,2,2));
+    local NewFile = Files[string.lower(string.sub(Move,1,1))]
+    local NewRank = tonumber(string.sub(Move,2,2));
     if Board.Turn == "w" then
         if table.find(WhitePieces,string.sub(Board.Board[Rank],File,File)) then else
             return
@@ -43,13 +52,20 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
             return
         end
     end
+
     -- Check if Check
-    local inCheck = Moves:CheckifCheck(Board,Moves:GetSquareFromPiece(Board,KingPiece))
+    local inCheck = Moves:CheckifCheck(Board,Moves:GetSquareFromPiece(Board,KingPiece),Board.Turn)
     -- Check if LegalMove
     local LegalMoves = Moves:GetLegalMoves(Board,Square)
     local Legal = false
-    for _,o in pairs(LegalMoves) do
-        if o == Move then
+    local CheckMove
+    for i,o in pairs(LegalMoves) do
+        if typeof(o) == "table" and o[1] == Move then
+            CheckMove = i
+            Legal = true
+            break
+        elseif o == Move then
+            CheckMove = i
             Legal = true
             break
         end
@@ -59,7 +75,12 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
 
     -- Check Check
-    local inCheck2 = Moves:CheckifCheck(Board,Move)
+    local inCheck2
+    if string.sub(Board.Board[Rank],File,File) == KingPiece then
+        Moves:CheckifCheck(Board,Move,Board.Turn)
+    else
+        Moves:CheckifCheck(Board,Moves:GetSquareFromPiece(Board,KingPiece),Board.Turn)
+    end
     if inCheck == false and inCheck2 == true then
         -- illegal
         return
@@ -69,6 +90,39 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
 
     -- Make Move
+    local isTaking = false
+    if string.sub(Board.Board[NewRank],NewFile,NewFile) ~= " " then
+        isTaking = true
+    end
+    Board = Module:SetSquare(Board,Move,string.sub(Board.Board[Rank],File,File))
+    Board = Module:SetSquare(Board,Square," ")
+    if typeof(LegalMoves[CheckMove]) == "table" then
+        if LegalMoves[CheckMove][2] == "castle" then
+            -- Move Rook
+            local Rooks = string.split(LegalMoves[CheckMove][3],"-")
+            Board = Module:SetSquare(Board,Rooks[1]," ")
+            if Board.Turn == "w" then
+                Board = Module:SetSquare(Board,Rooks[2],"R")
+            else
+                Board = Module:SetSquare(Board,Rooks[2],"r")
+            end
+        else
+            -- EnPassant
+            Board = Module:SetSquare(Board,LegalMoves[CheckMove][2]," ")
+        end
+    end
+    -- PGN
+
+    -- Castles
+
+    -- Switch Turns
+    if Board.Turn == "w" then
+        Board.Turn = "b"
+    else
+        Board.Turn = "w"
+    end
+    Board.Last = Move;
+    return true, Board
 end
 
 return Module
