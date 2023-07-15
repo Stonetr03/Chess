@@ -45,6 +45,39 @@ function Module:GetMoves(Board,File,Rank,Color)
                 end
             end
         end
+        -- Castles
+        if File == 5 and Rank == 1 then
+            if string.find(Board.Castle,"K") then
+                local Valid = true
+                for i = 1,3,1 do
+                    local Sqr = {File+i,Rank}
+                    local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
+                    if i == 3 and Piece == "R" then
+                    elseif Piece == " " then
+                    else
+                        Valid = false
+                    end
+                end
+                if Valid == true then
+                    table.insert(Moves,"g1")
+                end
+            end
+            if string.find(Board.Castle,"Q") then
+                local Valid = true
+                for i = 1,4,1 do
+                    local Sqr = {File-i,Rank}
+                    local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
+                    if i == 4 and Piece == "R" then
+                    elseif Piece == " " then
+                    else
+                        Valid = false
+                    end
+                end
+                if Valid == true then
+                    table.insert(Moves,"c1")
+                end
+            end
+        end
     elseif Color == "b" then
         -- Check Black Piece
         for _,o in pairs(Jumps) do
@@ -58,6 +91,39 @@ function Module:GetMoves(Board,File,Rank,Color)
                 elseif table.find(WhitePieces,Piece) then
                     -- Black Piece
                     table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                end
+            end
+        end
+        -- Castles
+        if File == 5 and Rank == 8 then
+            if string.find(Board.Castle,"k") then
+                local Valid = true
+                for i = 1,3,1 do
+                    local Sqr = {File+i,Rank}
+                    local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
+                    if i == 3 and Piece == "r" then
+                    elseif Piece == " " then
+                    else
+                        Valid = false
+                    end
+                end
+                if Valid == true then
+                    table.insert(Moves,"g8")
+                end
+            end
+            if string.find(Board.Castle,"q") then
+                local Valid = true
+                for i = 1,4,1 do
+                    local Sqr = {File-i,Rank}
+                    local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
+                    if i == 4 and Piece == "r" then
+                    elseif Piece == " " then
+                    else
+                        Valid = false
+                    end
+                end
+                if Valid == true then
+                    table.insert(Moves,"c8")
                 end
             end
         end

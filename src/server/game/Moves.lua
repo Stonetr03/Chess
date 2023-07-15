@@ -24,6 +24,17 @@ local Files = {
     ["h"] = 8;
 }
 
+local FileNums = {
+    [1] = "a";
+    [2] = "b";
+    [3] = "c";
+    [4] = "d";
+    [5] = "e";
+    [6] = "f";
+    [7] = "g";
+    [8] = "h";
+}
+
 local CheckFuncs = {
     ["p"] = Pawn;
     ["r"] = Rook;
@@ -56,6 +67,51 @@ function Module:GetLegalMoves(Board,Square)
     local LegalMoves = CheckFuncs[string.lower(Piece)]:GetMoves(Board,File,Rank,Color)
     -- Check if king is Still in check
     return LegalMoves
+end
+
+function Module:GetPieces(Board,Color)
+    local Pieces = {}
+    for Rank = 1,8,1 do
+        for File = 1,8,1 do
+            if Color == "w" and table.find(WhitePieces,string.sub(Board.Board[Rank],File,File)) then
+                table.insert(Pieces,FileNums[File] .. tostring(Rank))
+            elseif Color == "b" and table.find(BlackPieces,string.sub(Board.Board[Rank],File,File)) then
+                table.insert(Pieces,FileNums[File] .. tostring(Rank))
+            end
+        end
+    end
+    return Pieces
+end
+
+function Module:GetSquareFromPiece(Board,Piece)
+    for Rank = 1,8,1 do
+        for File = 1,8,1 do
+            if string.sub(Board.Board[Rank],File,File) == Piece then
+                return FileNums[File] .. tostring(Rank)
+            end
+        end
+    end
+end
+
+function Module:CheckifCheck(Board,Square,Color)
+    local Check = false
+    local Pieces
+    if Color == "w" then
+        Pieces = Module:GetPieces(Board,"b")
+    elseif Color == "b" then
+        Pieces = Module:GetPieces(Board,"w")
+    end
+    for _,Piece in pairs(Pieces) do
+        local Moves = Module:GetLegalMoves(Board,Piece)
+        for _,o in pairs(Moves) do
+            if typeof(o) == "table" then
+            elseif o == Square then
+                Check = true
+                break
+            end
+        end
+    end
+    return Check
 end
 
 return Module
