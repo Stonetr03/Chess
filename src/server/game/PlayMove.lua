@@ -1,6 +1,7 @@
 -- Stonetr03
 
 local Moves = require(script.Parent:WaitForChild("Moves"))
+local Checkmate = require(script.Parent:WaitForChild("Checkmate"))
 
 local Module = {}
 
@@ -32,11 +33,13 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
         if Board.White ~= Player and Board.White ~= "White" then
             return
         end
-    else
+    elseif Board.Turn == "b" then
         KingPiece = "k"
         if Board.Black ~= Player and Board.Black ~= "Black" then
             return
         end
+    else
+        return
     end
     -- Check if square is piece
     local File = Files[string.lower(string.sub(Square,1,1))]
@@ -190,7 +193,22 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
         Board.Turn = "w"
     end
     Board.Last = Move;
+
     -- Check for Checkmate
+    local IsCheckmate = Checkmate:CheckForCheckmate(Board,Board.Last)
+    if IsCheckmate == true then
+        Board.Turn = ""
+        local Winner
+        if Board.Turn == "w" then
+            Winner = "b";
+        else
+            Winner = "w";
+        end
+        Board.Status = "Checkmate;" .. Winner
+    end
+    -- Check for Stalemate
+    -- Check for Insuffient Material
+    -- Check for Same Board 3x Draw
 
     return true, Board
 end

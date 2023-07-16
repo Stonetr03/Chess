@@ -94,6 +94,7 @@ function Module:New(Hash,FEN,p1,p2)
         White = p1;
         Black = p2;
         Hash = Hash;
+        Status = "";
     }
 end
 
