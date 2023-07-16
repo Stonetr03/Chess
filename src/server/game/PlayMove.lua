@@ -195,8 +195,7 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     Board.Last = Move;
 
     -- Check for Checkmate
-    local IsCheckmate = Checkmate:CheckForCheckmate(Board,Board.Last)
-    if IsCheckmate == true then
+    if Checkmate:CheckForCheckmate(Board,Board.Last) == true then
         Board.Turn = ""
         local Winner
         if Board.Turn == "w" then
@@ -208,6 +207,10 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
     -- Check for Stalemate
     -- Check for Insuffient Material
+    if Checkmate:CheckForInsufficientMaterial(Board) == true then
+        Board.Turn = ""
+        Board.Status = "Draw;insufficient material"
+    end
     -- Check for Same Board 3x Draw
 
     return true, Board

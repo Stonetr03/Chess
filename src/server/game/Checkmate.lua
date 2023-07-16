@@ -46,4 +46,67 @@ function Module:CheckForCheckmate(Board,Color)
     return true
 end
 
+function Module:CheckForInsufficientMaterial(Board)
+    local WSquares = Moves:GetPieces(Board,"w")
+    local WPieces = {}
+    for _,o in pairs(WSquares) do
+        local Piece = string.sub(Board.Board[tonumber(string.sub(o,2,2))],Files[string.sub(o,1,1)],Files[string.sub(o,1,1)])
+        table.insert(WPieces,Piece)
+    end
+    -- Check Pieces
+    local WLone = false
+    local WtwoN = false
+    if #WPieces == 1 and WPieces[1] == "K" then
+        WLone = true
+    elseif #WPieces == 2 and table.find(WPieces,"K") and table.find(WPieces,"B") then
+    elseif #WPieces == 2 and table.find(WPieces,"K") and table.find(WPieces,"N") then
+    elseif #WPieces == 3 then
+        -- Two Knights
+        local NCount = 0
+        for _,n in pairs(WPieces) do
+            if n == "N" then
+                NCount += 1
+            end
+        end
+        if NCount == 2 then
+            WtwoN = true
+        else
+            return false
+        end
+    else return false
+    end
+    -- Black
+    local BSquares = Moves:GetPieces(Board,"b")
+    local BPieces = {}
+    for _,o in pairs(BSquares) do
+        local Piece = string.sub(Board.Board[tonumber(string.sub(o,2,2))],Files[string.sub(o,1,1)],Files[string.sub(o,1,1)])
+        table.insert(BPieces,Piece)
+    end
+    -- Check Pieces
+    if #BPieces == 1 and BPieces[1] == "k" then
+        return true
+    elseif #BPieces == 2 and table.find(BPieces,"k") and table.find(BPieces,"b") then
+        if WtwoN == false then return true end
+    elseif #BPieces == 2 and table.find(BPieces,"k") and table.find(BPieces,"n") then
+        if WtwoN == false then return true end
+    elseif #BPieces == 3 then
+        -- Two Knights
+        local NCount = 0
+        for _,n in pairs(BPieces) do
+            if n == "n" then
+                NCount += 1
+            end
+        end
+        if NCount == 2 then
+            if WLone == true then
+                return true
+            end
+        else
+            return false
+        end
+    else return false
+    end
+    return false
+end
+
 return Module
