@@ -89,11 +89,80 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
         return
     end
 
-    -- Make Move
+    -- Check Castle
+    if inCheck == true and typeof(LegalMoves[CheckMove]) == "table" then
+        if LegalMoves[CheckMove][2] == "castle" then
+            return
+        end
+    end
+
+    -- Taking
     local isTaking = false
     if string.sub(Board.Board[NewRank],NewFile,NewFile) ~= " " then
         isTaking = true
     end
+
+    -- Castles
+    local ValidCastle = {}
+    for i = 1,string.len(Board.Castle),1 do
+        table.insert(ValidCastle,string.sub(Board.Castle,i,i))
+    end
+    if Board.Turn == "w" then
+        if string.sub(Board.Board[Rank],File,File) == "K" then
+            -- Remove Castles
+            if table.find(ValidCastle,"K") then
+                table.remove(ValidCastle,table.find(ValidCastle,"K"))
+            end
+            if table.find(ValidCastle,"Q") then
+                table.remove(ValidCastle,table.find(ValidCastle,"Q"))
+            end
+        elseif string.sub(Board.Board[Rank],File,File) == "R" then
+            if Rank == 1 then
+                if File == 1 then
+                    -- Remove Queen
+                    if table.find(ValidCastle,"Q") then
+                        table.remove(ValidCastle,table.find(ValidCastle,"Q"))
+                    end
+                elseif File == 8 then
+                    -- Remove King
+                    if table.find(ValidCastle,"K") then
+                        table.remove(ValidCastle,table.find(ValidCastle,"K"))
+                    end
+                end
+            end
+        end
+    elseif Board.Turn == "b" then
+        if string.sub(Board.Board[Rank],File,File) == "k" then
+            -- Remove Castles
+            if table.find(ValidCastle,"k") then
+                table.remove(ValidCastle,table.find(ValidCastle,"k"))
+            end
+            if table.find(ValidCastle,"q") then
+                table.remove(ValidCastle,table.find(ValidCastle,"q"))
+            end
+        elseif string.sub(Board.Board[Rank],File,File) == "r" then
+            if Rank == 1 then
+                if File == 1 then
+                    -- Remove Queen
+                    if table.find(ValidCastle,"q") then
+                        table.remove(ValidCastle,table.find(ValidCastle,"q"))
+                    end
+                elseif File == 8 then
+                    -- Remove King
+                    if table.find(ValidCastle,"k") then
+                        table.remove(ValidCastle,table.find(ValidCastle,"k"))
+                    end
+                end
+            end
+        end
+    end
+    local NewCastle = ""
+    for _,o in pairs(ValidCastle) do
+        NewCastle = NewCastle .. o
+    end
+    Board.Castle = NewCastle
+
+    -- Make Move
     Board = Module:SetSquare(Board,Move,string.sub(Board.Board[Rank],File,File))
     Board = Module:SetSquare(Board,Square," ")
     if typeof(LegalMoves[CheckMove]) == "table" then
@@ -113,7 +182,6 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
     -- PGN
 
-    -- Castles
 
     -- Switch Turns
     if Board.Turn == "w" then
@@ -122,6 +190,8 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
         Board.Turn = "w"
     end
     Board.Last = Move;
+    -- Check for Checkmate
+
     return true, Board
 end
 
