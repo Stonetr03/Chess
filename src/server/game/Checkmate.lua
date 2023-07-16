@@ -38,7 +38,52 @@ function Module:CheckForCheckmate(Board,Color)
         local PieceMoves = Moves:GetLegalMoves(Board,p)
         for _,m in pairs(PieceMoves) do
             local NewBoard = {Board = table.clone(Board.Board), Castle = "",Last = Board.Last}
-            if Moves:CheckifCheck(NewBoard,King,Color) == false then
+            -- Play Move
+            local Rank = tonumber(string.sub(p,2,2));
+            local File = Files[string.lower(string.sub(p,1,1))]
+            NewBoard = Module:SetTmpSquare(NewBoard,m,string.sub(NewBoard.Board[Rank],File,File))
+            NewBoard = Module:SetTmpSquare(NewBoard,p," ")
+            if typeof(m) == "table" then
+                if m[2] == "castle" then
+                else
+                    -- EnPassant
+                    NewBoard = Module:SetTmpSquare(NewBoard,m[2]," ")
+                end
+            end
+            local NewKing = Moves:GetSquareFromPiece(Board,ColorPieces[Color])
+            if Moves:CheckifCheck(NewBoard,NewKing,Color) == false then
+                return false
+            end
+        end
+    end
+    return true
+end
+
+function Module:CheckForStalemate(Board,Color)
+    local King = Moves:GetSquareFromPiece(Board,ColorPieces[Color])
+    if Moves:CheckifCheck(Board, King) == true then
+        return false
+    end
+
+    local Pieces = Moves:GetPieces(Board,Color)
+    for _,p in pairs(Pieces) do
+        local PieceMoves = Moves:GetLegalMoves(Board,p)
+        for _,m in pairs(PieceMoves) do
+            local NewBoard = {Board = table.clone(Board.Board), Castle = "",Last = Board.Last}
+            -- Play Move
+            local Rank = tonumber(string.sub(p,2,2));
+            local File = Files[string.lower(string.sub(p,1,1))]
+            NewBoard = Module:SetTmpSquare(NewBoard,m,string.sub(NewBoard.Board[Rank],File,File))
+            NewBoard = Module:SetTmpSquare(NewBoard,p," ")
+            if typeof(m) == "table" then
+                if m[2] == "castle" then
+                else
+                    -- EnPassant
+                    NewBoard = Module:SetTmpSquare(NewBoard,m[2]," ")
+                end
+            end
+            local NewKing = Moves:GetSquareFromPiece(Board,ColorPieces[Color])
+            if Moves:CheckifCheck(NewBoard,NewKing,Color) == false then
                 return false
             end
         end

@@ -204,13 +204,17 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
             Winner = "w";
         end
         Board.Status = "Checkmate;" .. Winner
-    end
-    -- Check for Stalemate
-    -- Check for Insuffient Material
-    if Checkmate:CheckForInsufficientMaterial(Board) == true then
+    elseif Checkmate:CheckForStalemate(Board,Board.Last) == true then
+        -- Check for Stalemate
+        Board.Turn = ""
+        Board.Status = "Draw;Stalemate"
+    elseif Checkmate:CheckForInsufficientMaterial(Board) == true then
+        -- Check for Insuffient Material
         Board.Turn = ""
         Board.Status = "Draw;insufficient material"
     end
+    -- Check for Stalemate
+    
     -- Check for Same Board 3x Draw
 
     return true, Board
