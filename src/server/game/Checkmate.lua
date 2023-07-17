@@ -23,13 +23,13 @@ local Files = {
 function Module:SetTmpSquare(Board,Square,Piece)
     local File = Files[string.lower(string.sub(Square,1,1))]
     local Rank = tonumber(string.sub(Square,2,2));
-    Board[Rank] = string.sub(Board.Board[Rank],0,File-1) .. Piece .. string.sub(Board.Board[Rank],File+1,9)
+    Board.Board[Rank] = string.sub(Board.Board[Rank],0,File-1) .. Piece .. string.sub(Board.Board[Rank],File+1,9)
     return Board
 end
 
 function Module:CheckForCheckmate(Board,Color)
     local King = Moves:GetSquareFromPiece(Board,ColorPieces[Color])
-    if Moves:CheckifCheck(Board, King) == false then
+    if Moves:CheckifCheck(Board, King, Color) == false then
         return false
     end
 
@@ -50,7 +50,7 @@ function Module:CheckForCheckmate(Board,Color)
                     NewBoard = Module:SetTmpSquare(NewBoard,m[2]," ")
                 end
             end
-            local NewKing = Moves:GetSquareFromPiece(Board,ColorPieces[Color])
+            local NewKing = Moves:GetSquareFromPiece(NewBoard,ColorPieces[Color])
             if Moves:CheckifCheck(NewBoard,NewKing,Color) == false then
                 return false
             end
@@ -61,7 +61,7 @@ end
 
 function Module:CheckForStalemate(Board,Color)
     local King = Moves:GetSquareFromPiece(Board,ColorPieces[Color])
-    if Moves:CheckifCheck(Board, King) == true then
+    if Moves:CheckifCheck(Board, King, Color) == true then
         return false
     end
 
@@ -82,7 +82,7 @@ function Module:CheckForStalemate(Board,Color)
                     NewBoard = Module:SetTmpSquare(NewBoard,m[2]," ")
                 end
             end
-            local NewKing = Moves:GetSquareFromPiece(Board,ColorPieces[Color])
+            local NewKing = Moves:GetSquareFromPiece(NewBoard,ColorPieces[Color])
             if Moves:CheckifCheck(NewBoard,NewKing,Color) == false then
                 return false
             end

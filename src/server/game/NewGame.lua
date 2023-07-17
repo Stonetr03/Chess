@@ -86,6 +86,11 @@ function Module:New(Hash,FEN,p1,p2)
     if p2 == nil then
         p2 = "Black"
     end
+    -- PGN
+    local PGN = ""
+    if Move == "b" then
+        PGN = (tonumber(FENSplit[6]) or tostring(1)) .. "..."
+    end
     return {
         Board = Board;
         Turn = Move;
@@ -95,6 +100,8 @@ function Module:New(Hash,FEN,p1,p2)
         Black = p2;
         Hash = Hash;
         Status = "";
+        MoveCount = tonumber(FENSplit[6]) or 1;
+        PGN = PGN;
     }
 end
 

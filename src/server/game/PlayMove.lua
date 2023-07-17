@@ -19,6 +19,11 @@ local Files = {
     ["h"] = 8;
 }
 
+local ColorPieces = {
+    ["w"] = "K";
+    ["b"] = "k";
+}
+
 function Module:SetSquare(Board,Square,Piece)
     local File = Files[string.lower(string.sub(Square,1,1))]
     local Rank = tonumber(string.sub(Square,2,2));
@@ -78,12 +83,17 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
 
     -- Check Check
-    local inCheck2
-    if string.sub(Board.Board[Rank],File,File) == KingPiece then
-        Moves:CheckifCheck(Board,Move,Board.Turn)
-    else
-        Moves:CheckifCheck(Board,Moves:GetSquareFromPiece(Board,KingPiece),Board.Turn)
+    local tmpCheckBoard = {Board = table.clone(Board.Board), Castle = "",Last = Board.Last}
+    tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,Move,string.sub(tmpCheckBoard.Board[Rank],File,File))
+    tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,Square," ")
+    if typeof(LegalMoves[CheckMove]) == "table" then
+        if LegalMoves[CheckMove][2] == "castle" then
+        else
+            -- EnPassant
+            tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,Move[2]," ")
+        end
     end
+    local inCheck2 = Moves:CheckifCheck(tmpCheckBoard,Moves:GetSquareFromPiece(tmpCheckBoard,KingPiece),Board.Turn)
     if inCheck == false and inCheck2 == true then
         -- illegal
         return
@@ -166,6 +176,7 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     Board.Castle = NewCastle
 
     -- Make Move
+    local isCastle = ""
     Board = Module:SetSquare(Board,Move,string.sub(Board.Board[Rank],File,File))
     Board = Module:SetSquare(Board,Square," ")
     if typeof(LegalMoves[CheckMove]) == "table" then
@@ -178,13 +189,38 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
             else
                 Board = Module:SetSquare(Board,Rooks[2],"r")
             end
+
+            -- PGN
+            if string.sub(Rooks[1],1,1) == "a" then
+                isCastle = "O-O-O"
+            elseif string.sub(Rooks[1],1,1) == "h" then
+                isCastle = "O-O"
+            end
         else
             -- EnPassant
             Board = Module:SetSquare(Board,LegalMoves[CheckMove][2]," ")
         end
     end
     -- PGN
-
+    local NewPgn = ""
+    if isCastle ~= "" then
+        NewPgn = isCastle
+    else
+        local Piece = string.upper(string.sub(Board.Board[NewRank],NewFile,NewFile))
+        if Piece == "P" then
+            if isTaking == true then
+                NewPgn = string.sub(Square,1,1) .. "x" .. Move
+            else
+                NewPgn = Move
+            end
+        else
+            if isTaking == true then
+                NewPgn = Piece .. "x" .. Move
+            else
+                NewPgn = Piece .. Move
+            end
+        end
+    end
 
     -- Switch Turns
     if Board.Turn == "w" then
@@ -195,27 +231,46 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     Board.Last = Move;
 
     -- Check for Checkmate
-    if Checkmate:CheckForCheckmate(Board,Board.Last) == true then
+    if Checkmate:CheckForCheckmate(Board,Board.Turn) == true then
         Board.Turn = ""
+        NewPgn = NewPgn .. "#"
         local Winner
         if Board.Turn == "w" then
             Winner = "b";
+            NewPgn = NewPgn .. " 0-1"
         else
             Winner = "w";
+            NewPgn = NewPgn .. " 1-0"
         end
         Board.Status = "Checkmate;" .. Winner
-    elseif Checkmate:CheckForStalemate(Board,Board.Last) == true then
+    elseif Checkmate:CheckForStalemate(Board,Board.Turn) == true then
         -- Check for Stalemate
         Board.Turn = ""
         Board.Status = "Draw;Stalemate"
+        NewPgn = NewPgn .. " 1/2-1/2"
     elseif Checkmate:CheckForInsufficientMaterial(Board) == true then
         -- Check for Insuffient Material
         Board.Turn = ""
         Board.Status = "Draw;insufficient material"
+        NewPgn = NewPgn .. " 1/2-1/2"
+    else
+        -- Check for Check
+        local King = Moves:GetSquareFromPiece(Board,ColorPieces[Board.Turn])
+        if Moves:CheckifCheck(Board, King, Board.Turn) == true then
+            NewPgn = NewPgn .. "+"
+        end
+    end    
+    -- Check for Same Board 3x Draw - Idea:Table of strings like this {[1] = {BoardString:string,Count:number}} -- When count reaches 3, draw, if piece is taken off board, clear table.
+
+    -- Edit Board.PGN
+    if Board.Turn == "w" then
+        -- Was B now W
+        Board.MoveCount += 1
+        Board.PGN = Board.PGN .. " " .. NewPgn .. " "
+    else
+        -- Was W not B
+        Board.PGN = Board.PGN .. tonumber(Board.MoveCount) .. ". " .. NewPgn
     end
-    -- Check for Stalemate
-    
-    -- Check for Same Board 3x Draw
 
     return true, Board
 end
