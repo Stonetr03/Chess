@@ -225,6 +225,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
     else
         local Piece = string.upper(string.sub(Board.Board[NewRank],NewFile,NewFile))
         if Piece == "P" then
+            Board.Move50 = -1
             if isTaking == true then
                 NewPgn = string.sub(Square,1,1) .. "x" .. Move
             else
@@ -233,6 +234,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
         else
             if isTaking == true then
                 NewPgn = Piece .. "x" .. Move
+                Board.Move50 = -1
             else
                 NewPgn = Piece .. Move
             end
@@ -314,6 +316,11 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
         Board.Turn = ""
         Board.Status = "Draw;threefold repetition"
         NewPgn = NewPgn .. " 1/2-1/2"
+    elseif Board.Move50 >= 50 then
+        LastTurn = Board.Turn
+        Board.Turn = ""
+        Board.Status = "Draw;50 move rule."
+        NewPgn = NewPgn .. " 1/2-1/2"
     else
         -- Check for Check
         local King = Moves:GetSquareFromPiece(Board,ColorPieces[Board.Turn])
@@ -321,6 +328,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
             NewPgn = NewPgn .. "+"
         end
     end
+    Board.Move50 += 1
 
     -- Edit Board.PGN
     if Board.Turn == "w" or LastTurn == "w" then

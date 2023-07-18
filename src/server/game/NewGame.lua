@@ -104,6 +104,7 @@ function Module:New(Hash,FEN,p1,p2)
         PGN = PGN;
         Threefold = {};
         Draw = {false,false};
+        Move50 = 0;
     }
 end
 
