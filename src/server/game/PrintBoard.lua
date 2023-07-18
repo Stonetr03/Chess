@@ -9,7 +9,6 @@ function PrintBoard(board)
     end
     Txt = Txt .. "--------\nW:" .. board.White .. "\n--------\n" .. "T:" .. board.Turn .. ", C:" .. board.Castle .. ", L:" .. board.Last .. "\n========\n" .. board.PGN .. "\n========\n"
     print(Txt)
-    print(board.Threefold)
     return
 end
 

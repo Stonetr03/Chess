@@ -259,7 +259,9 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
 
     -- Check for Checkmate
+    local LastTurn = ""
     if Checkmate:CheckForCheckmate(Board,Board.Turn) == true then
+        LastTurn = Board.Turn
         Board.Turn = ""
         NewPgn = NewPgn .. "#"
         local Winner
@@ -273,15 +275,18 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
         Board.Status = "Checkmate;" .. Winner
     elseif Checkmate:CheckForStalemate(Board,Board.Turn) == true then
         -- Check for Stalemate
+        LastTurn = Board.Turn
         Board.Turn = ""
         Board.Status = "Draw;Stalemate"
         NewPgn = NewPgn .. " 1/2-1/2"
     elseif Checkmate:CheckForInsufficientMaterial(Board) == true then
         -- Check for Insuffient Material
+        LastTurn = Board.Turn
         Board.Turn = ""
         Board.Status = "Draw;insufficient material"
         NewPgn = NewPgn .. " 1/2-1/2"
     elseif DrawThreeFold == true then
+        LastTurn = Board.Turn
         Board.Turn = ""
         Board.Status = "Draw;threefold repetition"
         NewPgn = NewPgn .. " 1/2-1/2"
@@ -294,7 +299,7 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
 
     -- Edit Board.PGN
-    if Board.Turn == "w" then
+    if Board.Turn == "w" or LastTurn == "w" then
         -- Was B now W
         Board.MoveCount += 1
         Board.PGN = Board.PGN .. " " .. NewPgn .. " "
