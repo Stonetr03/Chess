@@ -49,7 +49,6 @@ function Module:GetMoves(Board,File,Rank,Color)
             if table.find(BlackPieces,Piece) then
                 -- Can Take
                 if Sqr[2] == 8 then
-                    print("Can Take")
                     for i = 1,4,1 do
                         table.insert(Moves,{Files[Sqr[1]] .. tostring(Sqr[2]),"Promote",WhitePieces[i]})
                     end

@@ -30,12 +30,13 @@ function Module:Playmove(Hash,Player,Square,Move,Promote)
     if not table.find(legalPromote,string.lower(tostring(Promote))) then return end
     local Board = Module.Games[Hash]
     if Board then
-        local Moved,New = PlayMove:Move(Board,Player,Square,Move,Promote)
+        local Moved,New,UpdateMoves = PlayMove:Move(Board,Player,Square,Move,Promote)
         if Moved == true then
             Module.Games[Hash] = New
         end
 
         PrintBoard(Module.Games[Hash])
+        print(UpdateMoves)
     end
 end
 

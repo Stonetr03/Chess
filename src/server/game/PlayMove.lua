@@ -19,6 +19,18 @@ local Files = {
     ["h"] = 8;
 }
 
+local NumFiles = {
+    [1] = "a";
+    [2] = "b";
+    [3] = "c";
+    [4] = "d";
+    [5] = "e";
+    [6] = "f";
+    [7] = "g";
+    [8] = "h";
+}
+
+
 local ColorPieces = {
     ["w"] = "K";
     ["b"] = "k";
@@ -33,14 +45,15 @@ end
 
 function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move:NewSquare
     -- Check Player
+    local ReturnMoves = {}
     local KingPiece = "K"
     if Board.Turn == "w" then
-        if Board.White ~= Player and Board.White ~= "White" then
+        if Board.White ~= Player then
             return
         end
     elseif Board.Turn == "b" then
         KingPiece = "k"
-        if Board.Black ~= Player and Board.Black ~= "Black" then
+        if Board.Black ~= Player then
             return
         end
     else
@@ -126,6 +139,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
     local isTaking = false
     if string.sub(Board.Board[NewRank],NewFile,NewFile) ~= " " then
         isTaking = true
+        table.insert(ReturnMoves,Move .. "-x")
     end
 
     -- Castles
@@ -192,6 +206,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
     local isCastle = ""
     Board = Module:SetSquare(Board,Move,string.sub(Board.Board[Rank],File,File))
     Board = Module:SetSquare(Board,Square," ")
+    table.insert(ReturnMoves,Square .. "-" .. Move)
     if typeof(LegalMoves[CheckMove]) == "table" then
         if LegalMoves[CheckMove][2] == "castle" then
             -- Move Rook
@@ -202,6 +217,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
             else
                 Board = Module:SetSquare(Board,Rooks[2],"r")
             end
+            table.insert(ReturnMoves,Rooks[1] .. "-" .. Rooks[2])
 
             -- PGN
             if string.sub(Rooks[1],1,1) == "a" then
@@ -215,6 +231,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
         else
             -- EnPassant
             Board = Module:SetSquare(Board,LegalMoves[CheckMove][2]," ")
+            table.insert(ReturnMoves,LegalMoves[CheckMove][2] .. "-x")
         end
     end
 
@@ -340,7 +357,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
         Board.PGN = Board.PGN .. tonumber(Board.MoveCount) .. ". " .. NewPgn
     end
 
-    return true, Board
+    return true, Board, ReturnMoves
 end
 
 return Module
