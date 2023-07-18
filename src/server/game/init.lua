@@ -14,7 +14,7 @@ local Module = {
 
 function Module:NewGame()
     local Hash = HttpService:GenerateGUID(true)
-    Module.Games[Hash] = NewGame:New(Hash,"8/k1PK4/1p6/1P6/8/8/8/8 w - - 0 1")
+    Module.Games[Hash] = NewGame:New(Hash)
     PrintBoard(Module.Games[Hash])
     return Hash
 end
@@ -36,6 +36,40 @@ function Module:Playmove(Hash,Player,Square,Move,Promote)
         end
 
         PrintBoard(Module.Games[Hash])
+    end
+end
+
+function Module:Draw(Hash,Player,v)
+    local Board = Module.Games[Hash]
+    if Board then
+        if Board.White == Player then
+            Board.Draw[1] = v
+        elseif Board.Black == Player then
+            Board.Draw[2] = v
+        end
+    end
+    if v == false then
+        Board.Draw = {false,false}
+    end
+    if Board.Draw[1] == true and Board.Draw[2] == true then
+        Board.Turn = ""
+        Board.Status = "Draw;Agreement"
+        Board.PGN = Board.PGN .. " 1/2-1/2"
+    end
+end
+
+function Module:Resign(Hash,Player)
+    local Board = Module.Games[Hash]
+    if Board then
+        if Board.White == Player then
+            Board.Turn = ""
+            Board.Status = "Resign;b"
+            Board.PGN = Board.PGN .. " 0-1"
+        elseif Board.Black == Player then
+            Board.Turn = ""
+            Board.Status = "Resign;w"
+            Board.PGN = Board.PGN .. " 1-0"
+        end
     end
 end
 
