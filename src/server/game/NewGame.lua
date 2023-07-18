@@ -102,6 +102,7 @@ function Module:New(Hash,FEN,p1,p2)
         Status = "";
         MoveCount = tonumber(FENSplit[6]) or 1;
         PGN = PGN;
+        Threefold = {};
     }
 end
 

@@ -12,7 +12,7 @@ local Module = {
 
 function Module:NewGame()
     local Hash = HttpService:GenerateGUID(true)
-    Module.Games[Hash] = NewGame:New(Hash,"r1bk1bnr/5Qpp/p1P5/1p6/8/3PB3/PPP2PPP/RN2KB1R w KQ - 0 11")
+    Module.Games[Hash] = NewGame:New(Hash)
     PrintBoard(Module.Games[Hash])
     return Hash
 end

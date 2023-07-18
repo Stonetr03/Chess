@@ -201,6 +201,7 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
             Board = Module:SetSquare(Board,LegalMoves[CheckMove][2]," ")
         end
     end
+
     -- PGN
     local NewPgn = ""
     if isCastle ~= "" then
@@ -230,6 +231,33 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     end
     Board.Last = Move;
 
+    -- Threefold Repetition
+    if isTaking == true then
+        Board.Threefold = {}
+    end
+
+    local BoardString = "";
+    for i = 1,8,1 do
+        BoardString = BoardString .. Board.Board[i] .. "/"
+    end
+    BoardString = BoardString .. Board.Castle
+    -- Find Table
+    local DrawThreeFold = false
+    local ThreeFoldFound = false
+    for _,o in pairs(Board.Threefold) do
+        if o[1] == BoardString then
+            o[2] += 1;
+            ThreeFoldFound = true
+            if o[2] == 3 then
+                DrawThreeFold = true
+            end
+            break
+        end
+    end
+    if ThreeFoldFound == false then
+        table.insert(Board.Threefold,{BoardString,1})
+    end
+
     -- Check for Checkmate
     if Checkmate:CheckForCheckmate(Board,Board.Turn) == true then
         Board.Turn = ""
@@ -253,14 +281,17 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
         Board.Turn = ""
         Board.Status = "Draw;insufficient material"
         NewPgn = NewPgn .. " 1/2-1/2"
+    elseif DrawThreeFold == true then
+        Board.Turn = ""
+        Board.Status = "Draw;threefold repetition"
+        NewPgn = NewPgn .. " 1/2-1/2"
     else
         -- Check for Check
         local King = Moves:GetSquareFromPiece(Board,ColorPieces[Board.Turn])
         if Moves:CheckifCheck(Board, King, Board.Turn) == true then
             NewPgn = NewPgn .. "+"
         end
-    end    
-    -- Check for Same Board 3x Draw - Idea:Table of strings like this {[1] = {BoardString:string,Count:number}} -- When count reaches 3, draw, if piece is taken off board, clear table.
+    end
 
     -- Edit Board.PGN
     if Board.Turn == "w" then
