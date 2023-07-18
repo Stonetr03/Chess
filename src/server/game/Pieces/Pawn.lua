@@ -24,7 +24,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         if Rank+1 <= 8 then
             local AboveSqr = {File,Rank+1}
             local AbovePiece = string.sub(Board.Board[AboveSqr[2]],AboveSqr[1],AboveSqr[1])
-            if AbovePiece == " " then
+            if AbovePiece == " " and Rank+1 ~= 8 then
                 table.insert(Moves,Files[File] .. tostring(AboveSqr[2]))
 
                 -- Check if First Move
@@ -35,23 +35,41 @@ function Module:GetMoves(Board,File,Rank,Color)
                         table.insert(Moves,Files[File] .. tostring(AboveSqr2[2]))
                     end
                 end
+            elseif AbovePiece == " " and Rank+1 == 8 then
+                -- Promotion
+                for i = 1,4,1 do
+                    table.insert(Moves,{Files[File] .. tostring(AboveSqr[2]),"Promote",WhitePieces[i]})
+                end
             end
         end
         -- Check Takes
-        if File > 1 then
+        if File < 8 then
             local Sqr = {File+1,Rank+1}
             local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
             if table.find(BlackPieces,Piece) then
                 -- Can Take
-                table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                if Sqr[2] == 8 then
+                    print("Can Take")
+                    for i = 1,4,1 do
+                        table.insert(Moves,{Files[Sqr[1]] .. tostring(Sqr[2]),"Promote",WhitePieces[i]})
+                    end
+                else
+                    table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                end
             end
         end
-        if File < 8 then
+        if File > 1 then
             local Sqr = {File-1,Rank+1}
             local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
             if table.find(BlackPieces,Piece) then
                 -- Can Take
-                table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                if Sqr[2] == 8 then
+                    for i = 1,4,1 do
+                        table.insert(Moves,{Files[Sqr[1]] .. tostring(Sqr[2]),"Promote",WhitePieces[i]})
+                    end
+                else
+                    table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                end
             end
         end
         -- EnPassant
@@ -78,7 +96,7 @@ function Module:GetMoves(Board,File,Rank,Color)
         if Rank-1 >= 1 then
             local AboveSqr = {File,Rank-1}
             local AbovePiece = string.sub(Board.Board[AboveSqr[2]],AboveSqr[1],AboveSqr[1])
-            if AbovePiece == " " then
+            if AbovePiece == " " and Rank-1 ~= 1 then
                 table.insert(Moves,Files[File] .. tostring(AboveSqr[2]))
 
                 -- Check if First Move
@@ -89,23 +107,40 @@ function Module:GetMoves(Board,File,Rank,Color)
                         table.insert(Moves,Files[File] .. tostring(AboveSqr2[2]))
                     end
                 end
+            elseif AbovePiece == " " and Rank-1 == 1 then
+                -- Promotion
+                for i = 1,4,1 do
+                    table.insert(Moves,{Files[File] .. tostring(AboveSqr[2]),"Promote",BlackPieces[i]})
+                end
             end
         end
         -- Check Takes
-        if File > 1 then
+        if File < 8 then
             local Sqr = {File+1,Rank-1}
             local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
             if table.find(WhitePieces,Piece) then
                 -- Can Take
-                table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                if Sqr[2] == 1 then
+                    for i = 1,4,1 do
+                        table.insert(Moves,{Files[Sqr[1]] .. tostring(Sqr[2]),"Promote",BlackPieces[i]})
+                    end
+                else
+                    table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                end
             end
         end
-        if File < 8 then
+        if File > 1 then
             local Sqr = {File-1,Rank-1}
             local Piece = string.sub(Board.Board[Sqr[2]],Sqr[1],Sqr[1])
             if table.find(WhitePieces,Piece) then
                 -- Can Take
-                table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                if Sqr[2] == 1 then
+                    for i = 1,4,1 do
+                        table.insert(Moves,{Files[Sqr[1]] .. tostring(Sqr[2]),"Promote",BlackPieces[i]})
+                    end
+                else
+                    table.insert(Moves,Files[Sqr[1]] .. tostring(Sqr[2]))
+                end
             end
         end
         -- EnPassant

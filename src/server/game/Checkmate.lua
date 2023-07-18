@@ -45,6 +45,8 @@ function Module:CheckForCheckmate(Board,Color)
             NewBoard = Module:SetTmpSquare(NewBoard,p," ")
             if typeof(m) == "table" then
                 if m[2] == "castle" then
+                elseif m[2] == "Promote" then
+                    NewBoard = Module:SetTmpSquare(NewBoard,m[1],m[3])
                 else
                     -- EnPassant
                     NewBoard = Module:SetTmpSquare(NewBoard,m[2]," ")
@@ -77,6 +79,8 @@ function Module:CheckForStalemate(Board,Color)
             NewBoard = Module:SetTmpSquare(NewBoard,p," ")
             if typeof(m) == "table" then
                 if m[2] == "castle" then
+                elseif m[2] == "Promote" then
+                    NewBoard = Module:SetTmpSquare(NewBoard,m[1],m[3])
                 else
                     -- EnPassant
                     NewBoard = Module:SetTmpSquare(NewBoard,m[2]," ")

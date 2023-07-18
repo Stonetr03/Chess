@@ -5,8 +5,8 @@ local Hash = Chess:NewGame()
 
 local PlayMove = Instance.new("BindableEvent",script)
 PlayMove.Name = "Move"
-PlayMove.Event:Connect(function(p,sqr,mov)
-    Chess:Playmove(Hash,p,sqr,mov)
+PlayMove.Event:Connect(function(p,sqr,mov,pro)
+    Chess:Playmove(Hash,p,sqr,mov,pro)
 end)
 
 local GetLegal = Instance.new("BindableEvent",script)

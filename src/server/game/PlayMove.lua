@@ -31,7 +31,7 @@ function Module:SetSquare(Board,Square,Piece)
     return Board
 end
 
-function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSquare
+function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move:NewSquare
     -- Check Player
     local KingPiece = "K"
     if Board.Turn == "w" then
@@ -86,11 +86,24 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
     local tmpCheckBoard = {Board = table.clone(Board.Board), Castle = "",Last = Board.Last}
     tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,Move,string.sub(tmpCheckBoard.Board[Rank],File,File))
     tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,Square," ")
+    local promotePiece = ""
     if typeof(LegalMoves[CheckMove]) == "table" then
         if LegalMoves[CheckMove][2] == "castle" then
+        elseif LegalMoves[CheckMove][2] == "Promote" then
+            if table.find(WhitePieces,string.upper(Promote)) < 5 then
+                -- allowed
+                if Board.Turn == "w" then
+                    promotePiece = string.upper(Promote)
+                else
+                    promotePiece = string.lower(Promote)
+                end
+            else -- illegal
+                return
+            end
+            tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,Move,promotePiece)
         else
             -- EnPassant
-            tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,Move[2]," ")
+            tmpCheckBoard = Checkmate:SetTmpSquare(tmpCheckBoard,LegalMoves[CheckMove][2]," ")
         end
     end
     local inCheck2 = Moves:CheckifCheck(tmpCheckBoard,Moves:GetSquareFromPiece(tmpCheckBoard,KingPiece),Board.Turn)
@@ -196,6 +209,9 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
             elseif string.sub(Rooks[1],1,1) == "h" then
                 isCastle = "O-O"
             end
+        elseif LegalMoves[CheckMove][2] == "Promote" then
+            -- Pawn Promotion
+            Board = Module:SetSquare(Board,Move,promotePiece)
         else
             -- EnPassant
             Board = Module:SetSquare(Board,LegalMoves[CheckMove][2]," ")
@@ -221,6 +237,14 @@ function Module:Move(Board,Player,Square,Move) -- Square:OldSquare, Move:NewSqua
                 NewPgn = Piece .. Move
             end
         end
+    end
+    if promotePiece ~= "" then
+        if isTaking == true then
+            NewPgn = string.sub(Square,1,1) .. "x" .. Move
+        else
+            NewPgn = Move
+        end
+        NewPgn = NewPgn .. "=" .. string.upper(promotePiece)
     end
 
     -- Switch Turns
