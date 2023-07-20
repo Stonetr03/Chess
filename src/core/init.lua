@@ -12,25 +12,27 @@ local legalPromote = {"r","n","b","q","","nil"}
 local Module = {
     Games = {};
     Signals = {};
+    Challenges = {};
+    Challenge = Signal.new()
 }
 
-function Module:NewGame()
+function Module:NewGame(p1: Player,p2: Player)
     local Hash = HttpService:GenerateGUID(true)
-    Module.Games[Hash] = NewGame:New(Hash)
+    Module.Games[Hash] = NewGame:New(Hash,nil,p1,p2)
     PrintBoard(Module.Games[Hash])
     local GameSignal = Signal.new()
     Module.Signals[Hash] = GameSignal;
     return Hash,GameSignal
 end
 
-function Module:GetLegalMoves(Hash,Square)
+function Module:GetLegalMoves(Hash: string,Square: string)
     local Board = Module.Games[Hash]
     if Board then
         return Moves:GetLegalMoves(Board,Square)
     end
 end
 
-function Module:Playmove(Hash,Player,Square,Move,Promote)
+function Module:Playmove(Hash: string,Player: Player,Square: string,Move: string,Promote: string)
     if not table.find(legalPromote,string.lower(tostring(Promote))) then return end
     local Board = Module.Games[Hash]
     if Board then
@@ -45,7 +47,7 @@ function Module:Playmove(Hash,Player,Square,Move,Promote)
     end
 end
 
-function Module:Draw(Hash,Player,v)
+function Module:Draw(Hash: string,Player: Player,v: boolean)
     local Board = Module.Games[Hash]
     if Board then
         if Board.White == Player then
@@ -65,7 +67,7 @@ function Module:Draw(Hash,Player,v)
     end
 end
 
-function Module:Resign(Hash,Player)
+function Module:Resign(Hash: string,Player: Player)
     local Board = Module.Games[Hash]
     if Board then
         if Board.White == Player then
@@ -80,6 +82,43 @@ function Module:Resign(Hash,Player)
             Module.Signals[Hash]:Fire({},Board)
         end
     end
+end
+
+function PlayChallenge(p1,p2)
+    local White
+    local Black
+    if math.random(1,2) == 1 then
+        White = p1
+        Black = p2
+    else
+        White = p2
+        Black = p1
+    end
+    return Module:NewGame(White,Black)
+end
+
+function Module:Challenge(p1: Player,p2: Player)
+    -- Check if Challenge Exists
+    for _,o in pairs(Module.Challenges) do
+        if o[1] == p1 then
+            if o[2] == p2 then
+                -- Accept
+                local Hash = PlayChallenge(p1,p2)
+                return true,Hash
+            end
+        elseif o[1] == p2 then
+            if o[2] == p1 then
+                -- Accept
+                local Hash = PlayChallenge(p1,p2)
+                return true,Hash
+            end
+        end
+    end
+
+    -- Add Challenge
+    table.insert(Module.Challenge,{p1,p2})
+    Module.Challenge:Fire({p1,p2})
+    return false,""
 end
 
 return Module
