@@ -11,7 +11,7 @@
 
     "ServerScriptService": {
       "Comm": {
-        "$path": "src/comm/server"
+        "$path": "src/comm"
       },
       "Core": {
         "$path": "src/core"
@@ -20,9 +20,6 @@
 
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "Comm": {
-          "$path": "src/comm/client"
-        },
         "Ui": {
           "$path": "src/ui"
         }
