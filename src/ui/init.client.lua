@@ -9,9 +9,30 @@ local Children = Fusion.Children
 local Value = Fusion.Value
 
 local Menu = require(script:WaitForChild("Menu"))
+local Board = require(script:WaitForChild("Board"))
+
+-- Values
 
 local ActiveGame = Value("")
+local ActiveBoard = Value({})
+local RenderingBoard = Value({
+    [1] = "        ";
+    [2] = "        ";
+    [3] = "        ";
+    [4] = "        ";
+    [5] = "        ";
+    [6] = "        ";
+    [7] = "        ";
+    [8] = "        ";
+})
+local BoardFlipped = Value(false)
 
+Board.ActiveGame = ActiveGame
+Board.ActiveBoard = ActiveBoard
+Board.RenderingBoard = RenderingBoard
+Board.BoardFlipped = BoardFlipped
+
+-- Ui
 local ScreenGui = New "ScreenGui" {
     ResetOnSpawn = false;
     IgnoreGuiInset = true;
@@ -22,7 +43,8 @@ local ScreenGui = New "ScreenGui" {
             BackgroundColor3 = Color3.fromRGB(36,36,36);
             ZIndex = 1;
         };
-        Menu = Menu.Ui({ActiveGame = ActiveGame;})
+        Menu = Menu.Ui({ActiveGame = ActiveGame;});
+        Board = Board.Ui({ActiveGame = ActiveGame;})
     };
 }
 
@@ -57,6 +79,7 @@ game.Players.PlayerAdded:Connect(function()
     ManagePlayers()
 end)
 
+-- Knit
 Knit.Start({ServicePromises = false}):andThen(function()
     local Chess = Knit.GetService("Chess")
     Chess.OnChallenge:Connect(function(player,v)
@@ -82,9 +105,28 @@ Knit.Start({ServicePromises = false}):andThen(function()
         end
         ManagePlayers()
     end)
-    Chess.GameStart:Connect(function(hash,players)
+    Chess.GameStart:Connect(function(hash,players,Newboard)
         table.insert(Games,{hash,players})
         ManagePlayers()
+        if players[1] == game.Players.LocalPlayer or players[2] == game.Players.LocalPlayer then
+            -- Spectate Game
+            ActiveGame:set(hash)
+            ActiveBoard:set(Newboard)
+            RenderingBoard:set(Newboard.Board)
+            if Newboard.Black == game.Players.LocalPlayer then
+                BoardFlipped:set(true)
+            else
+                BoardFlipped:set(false)
+            end
+        end
+    end)
+
+    -- Game Update Events
+    Chess.UpdateGame:Connect(function(Hash,Moves,Newboard)
+        if ActiveGame:get() == Hash then
+            ActiveBoard:set(Newboard);
+            RenderingBoard:set(Newboard.Board)
+        end
     end)
 
     Menu.Challenge = function(p)

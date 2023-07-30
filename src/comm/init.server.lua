@@ -8,8 +8,11 @@ local Chess = Knit.CreateService {
     Client = {
         OnChallenge = Knit.CreateSignal();
         GameStart = Knit.CreateSignal();
+        UpdateGame = Knit.CreateSignal();
     }
 }
+
+local GameListeners = {}
 
 core.ChallengeSignal:Connect(function(plrs,value)
     if value == true then
@@ -31,7 +34,14 @@ function Chess.Client:Challenge(p1,p2)
     local Start, Hash = core:Challenge(p1,p2)
     if Start == true then
         -- Notif Clients
-        Chess.Client.GameStart:FireAll(Hash,{p1,p2})
+        Chess.Client.GameStart:FireAll(Hash,{p1,p2},core.Games[Hash])
+        -- Listen to game
+        GameListeners[Hash] = {p1,p2}
+
+        core.Signals[Hash]:Connect(function(Moves,Newboard)
+            Chess.Client.UpdateGame:FireFor(GameListeners[Hash],Hash,Moves,Newboard)
+        end)
+
         return true
     else
         return false
@@ -40,6 +50,26 @@ end
 
 function Chess.Client:GetGames()
     return core.Games
+end
+
+function Chess.Client:GetBoardFromHash(p,Hash)
+    if core.Games[Hash] then
+        return core.Games[Hash]
+    end
+end
+
+function Chess.Client:ListenHash(p,Hash,Value)
+    if core.Games[Hash] and GameListeners[Hash] then
+        if Value == true then
+            if table.find(GameListeners[Hash],p) == nil then
+                table.insert(GameListeners[Hash],p)
+            end
+        elseif Value == false then
+            if table.find(GameListeners[Hash],p) then
+                table.remove(GameListeners[Hash],table.find(GameListeners[Hash],p))
+            end
+        end
+    end
 end
 
 Knit.Start():andThen(function() end):catch(warn)
