@@ -44,7 +44,7 @@ local ScreenGui = New "ScreenGui" {
             ZIndex = 1;
         };
         Menu = Menu.Ui({ActiveGame = ActiveGame;});
-        Board = Board.Ui({ActiveGame = ActiveGame;})
+        Board = Board.Ui();
     };
 }
 
