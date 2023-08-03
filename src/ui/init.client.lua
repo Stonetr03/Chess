@@ -147,4 +147,9 @@ Knit.Start({ServicePromises = false}):andThen(function()
         end
     end
     ManagePlayers()
+
+    -- Make Move
+    Board.MakeMove = function(Sqr,Move,Promote)
+        return Chess:MakeMove(ActiveGame:get(),Sqr,Move,Promote)
+    end
 end):catch(warn)

@@ -16,6 +16,7 @@ local Module = {
     ActiveBoard = nil;
     RenderingBoard = nil;
     BoardFlipped = nil;
+    MakeMove = nil;
 }
 
 local BoardRef = Value()
@@ -23,6 +24,11 @@ local BoardRef = Value()
 -- Settings
 local BoardWColor = Value(Color3.fromRGB(240, 217, 181))
 local BoardBColor = Value(Color3.fromRGB(181, 136, 99))
+
+local PieceColors = {
+    w = {"R","N","B","Q","K","P"};
+    b = {"r","n","b","q","k","p"};
+}
 
 function RenderBoardBG()
     local Squares = {}
@@ -176,6 +182,8 @@ function Module.Ui()
                                 local mousePos
                                 local mouseOffset
 
+                                local OldSqr = FileNumToTxt[o.File] .. tostring(o.Rank)
+
                                 local function update(input)
                                     local delta = input.Position - dragStart
                                     mousePos = Vector2.new(input.Position.X,input.Position.Y)
@@ -207,17 +215,81 @@ function Module.Ui()
                                             -- Offset
                                             mouseOffset = Vector2.new( input.Position.X - (PieceRef:get().AbsolutePosition.X + (PieceRef:get().AbsoluteSize.X / 2)), input.Position.Y -  (PieceRef:get().AbsolutePosition.Y + (PieceRef:get().AbsoluteSize.Y / 2)) )
 
-                                            input.Changed:Connect(function()
+                                            local con
+                                            con = input.Changed:Connect(function()
                                                 if input.UserInputState == Enum.UserInputState.End then
                                                     dragging = false
                                                     -- Get Nearest Square
                                                     local NewSqr = GetNewSquare(mousePos)
                                                     if NewSqr then
-                                                        print(NewSqr)
-                                                        Position:set(GetPosition(NewSqr))
+                                                        -- Make sure its your piece and not opponants piece
+                                                        if Module.ActiveBoard:get().White and Module.ActiveBoard:get().White == game.Players.LocalPlayer then
+                                                            -- Is the w player
+                                                            if table.find(PieceColors.w,o.Piece) then
+                                                                -- Can Move
+                                                                Position:set(GetPosition(NewSqr))
+                                                                print(NewSqr,OldSqr)
+                                                                if NewSqr ~= OldSqr then
+                                                                    -- Moved Piece
+                                                                    if Module.ActiveBoard:get().Turn == "w" then
+                                                                        -- Make Move
+                                                                        -- Check if premoves first
+                                                                        if o.Piece == "P" and tonumber(string.sub(NewSqr,2,2)) == 8 then
+                                                                            -- Promote
+                                                                        else
+                                                                            if Module.MakeMove(OldSqr,NewSqr) == false then
+                                                                                Position:set(startPos)
+                                                                            else
+                                                                                OldSqr = NewSqr
+                                                                            end
+                                                                        end
+                                                                    else
+                                                                        -- Premove
+                                                                        Position:set(startPos)
+                                                                    end
+                                                                end
+                                                            else
+                                                                Position:set(startPos)
+                                                            end
+                                                        elseif Module.ActiveBoard:get().Black and Module.ActiveBoard:get().Black == game.Players.LocalPlayer then
+                                                            -- Is the b player
+                                                            if table.find(PieceColors.b,o.Piece) then
+                                                                -- Can Move
+                                                                Position:set(GetPosition(NewSqr))
+                                                                print(NewSqr,OldSqr)
+                                                                if NewSqr ~= OldSqr then
+                                                                    -- Moved Piece
+                                                                    if Module.ActiveBoard:get().Turn == "b" then
+                                                                        -- Make Move
+                                                                        -- Check if premoves first
+                                                                        if o.Piece == "p" and tonumber(string.sub(NewSqr,2,2)) == 1 then
+                                                                            -- Promote
+                                                                        else
+                                                                            if Module.MakeMove(OldSqr,NewSqr) == false then
+                                                                                Position:set(startPos)
+                                                                            else
+                                                                                OldSqr = NewSqr
+                                                                            end
+                                                                        end
+                                                                    else
+                                                                        -- Premove
+                                                                        Position:set(startPos)
+                                                                    end
+                                                                    OldSqr = NewSqr
+                                                                end
+                                                            else
+                                                                Position:set(startPos)
+                                                            end
+                                                        else
+                                                            Position:set(startPos)
+                                                        end
                                                     else
                                                         Position:set(startPos)
                                                     end
+
+                                                    -- Cleanup
+                                                    con:Disconnect()
+                                                    con = nil;
                                                 end
                                             end)
                                         end

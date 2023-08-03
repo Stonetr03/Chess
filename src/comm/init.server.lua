@@ -72,4 +72,17 @@ function Chess.Client:ListenHash(p,Hash,Value)
     end
 end
 
+-- Make Move
+function Chess.Client:MakeMove(p,Hash,Sqr,Move,Promote)
+    if core.Games[Hash] then
+        if core.Games[Hash].Turn == "w" and core.Games[Hash].White == p then
+        elseif core.Games[Hash].Turn == "b" and core.Games[Hash].Black == p then
+        else
+            return
+        end
+        return core:Playmove(Hash,p,Sqr,Move,Promote)
+    end
+    return false
+end
+
 Knit.Start():andThen(function() end):catch(warn)

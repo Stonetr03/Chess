@@ -40,11 +40,12 @@ function Module:Playmove(Hash: string,Player: Player,Square: string,Move: string
         if Moved == true then
             Module.Games[Hash] = New
             Module.Signals[Hash]:Fire(UpdateMoves,New)
+            PrintBoard(Module.Games[Hash])
+            print(UpdateMoves)
+            return true
         end
-
-        PrintBoard(Module.Games[Hash])
-        print(UpdateMoves)
     end
+    return false
 end
 
 function Module:Draw(Hash: string,Player: Player,v: boolean)
