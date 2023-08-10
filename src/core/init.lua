@@ -18,7 +18,7 @@ local Module = {
 
 function Module:NewGame(p1: Player,p2: Player)
     local Hash = HttpService:GenerateGUID(true)
-    Module.Games[Hash] = NewGame:New(Hash,nil,p1,p2)
+    Module.Games[Hash] = NewGame:New(Hash,"rnbqkbnr/pPpppppp/8/8/8/8/PpPPPPPP/RNBQKBNR w KQkq - 0 1",p1,p2)
     PrintBoard(Module.Games[Hash])
     local GameSignal = Signal.new()
     Module.Signals[Hash] = GameSignal;

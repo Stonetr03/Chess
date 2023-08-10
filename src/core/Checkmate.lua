@@ -75,7 +75,11 @@ function Module:CheckForStalemate(Board,Color)
             -- Play Move
             local Rank = tonumber(string.sub(p,2,2));
             local File = Files[string.lower(string.sub(p,1,1))]
-            NewBoard = Module:SetTmpSquare(NewBoard,m,string.sub(NewBoard.Board[Rank],File,File))
+            if typeof(m) == "table" then
+                NewBoard = Module:SetTmpSquare(NewBoard,m[1],string.sub(NewBoard.Board[Rank],File,File))
+            else
+                NewBoard = Module:SetTmpSquare(NewBoard,m,string.sub(NewBoard.Board[Rank],File,File))
+            end
             NewBoard = Module:SetTmpSquare(NewBoard,p," ")
             if typeof(m) == "table" then
                 if m[2] == "castle" then

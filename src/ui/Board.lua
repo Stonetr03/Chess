@@ -1,6 +1,7 @@
 -- Stonetr03
 
 local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Fusion"))
+local Signal = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Signal"))
 local UserInputService = game:GetService("UserInputService")
 
 local Pieces = require(script.Parent:WaitForChild("Pieces"))
@@ -29,6 +30,122 @@ local PieceColors = {
     w = {"R","N","B","Q","K","P"};
     b = {"r","n","b","q","k","p"};
 }
+
+local MouseButtonSignal = Signal.new()
+local PromoteSignal = Signal.new()
+
+local PromoteOffset = Value(0)
+local PromoteVis = Value(false)
+local PromotePosition = Value(UDim2.new(0,0,0,0))
+
+MouseButtonSignal:Connect(function()
+    print("Mouse Click")
+    print("PromoteVis:", PromoteVis:get());
+    if PromoteVis:get() == true then
+        PromoteSignal:Fire("")
+        task.wait()
+        PromoteVis:set(false)
+    end
+end);
+
+function PromoteUi()
+    New "Frame" {
+        BackgroundColor3 = Color3.fromRGB(162,162,162);
+        BorderColor3 = Color3.fromRGB(27,42,53);
+        BorderMode = Enum.BorderMode.Outline;
+        BorderSizePixel = 5;
+        Size = UDim2.new(0.125,0,4 * 0.125,0);
+        ZIndex = 100;
+        Visible = PromoteVis;
+        Position = PromotePosition;
+        AnchorPoint = Computed(function()
+            if PromotePosition:get().Y.Scale == 0.875 then
+                return Vector2.new(0,0.75);
+            end
+            return Vector2.new(0,0)
+        end);
+        Parent = BoardRef;
+
+        [Children] = {
+            New "ImageButton" {
+                BackgroundTransparency = 1;
+                BackgroundColor3 = Color3.new(0,0,0);
+                Image = Pieces.ImageId;
+                ImageRectOffset = Computed(function()
+                    return Vector2.new(Pieces.Q.X,PromoteOffset:get());
+                end);
+                ImageRectSize = Vector2.new(175,175);
+                Size = UDim2.new(1,0,0.25,0);
+                Position = Computed(function()
+                    if PromotePosition:get().Y.Scale == 0.875 then
+                        return UDim2.new(0,0,0.75,0);
+                    end
+                    return UDim2.new(0,0,0,0)
+                end);
+                [Event "MouseButton1Down"] = function()
+                    PromoteSignal:Fire("Q")
+                end
+            };
+            New "ImageButton" {
+                BackgroundTransparency = 0.8;
+                BackgroundColor3 = Color3.new(0,0,0);
+                Image = Pieces.ImageId;
+                ImageRectOffset = Computed(function()
+                    return Vector2.new(Pieces.N.X,PromoteOffset:get());
+                end);
+                ImageRectSize = Vector2.new(175,175);
+                Size = UDim2.new(1,0,0.25,0);
+                Position = Computed(function()
+                    if PromotePosition:get().Y.Scale == 0.875 then
+                        return UDim2.new(0,0,0.5,0);
+                    end
+                    return UDim2.new(0,0,0.25,0)
+                end);
+                [Event "MouseButton1Down"] = function()
+                    PromoteSignal:Fire("N")
+                end
+            };
+            New "ImageButton" {
+                BackgroundTransparency = 1;
+                BackgroundColor3 = Color3.new(0,0,0);
+                Image = Pieces.ImageId;
+                ImageRectOffset = Computed(function()
+                    return Vector2.new(Pieces.R.X,PromoteOffset:get());
+                end);
+                ImageRectSize = Vector2.new(175,175);
+                Size = UDim2.new(1,0,0.25,0);
+                Position = Computed(function()
+                    if PromotePosition:get().Y.Scale == 0.875 then
+                        return UDim2.new(0,0,0.25,0);
+                    end
+                    return UDim2.new(0,0,0.5,0)
+                end);
+                [Event "MouseButton1Down"] = function()
+                    PromoteSignal:Fire("R")
+                end
+            };
+            New "ImageButton" {
+                BackgroundTransparency = 0.8;
+                BackgroundColor3 = Color3.new(0,0,0);
+                Image = Pieces.ImageId;
+                ImageRectOffset = Computed(function()
+                    return Vector2.new(Pieces.B.X,PromoteOffset:get());
+                end);
+                ImageRectSize = Vector2.new(175,175);
+                Size = UDim2.new(1,0,0.25,0);
+                Position = Computed(function()
+                    if PromotePosition:get().Y.Scale == 0.875 then
+                        return UDim2.new(0,0,0,0);
+                    end
+                    return UDim2.new(0,0,0.75,0)
+                end);
+                [Event "MouseButton1Down"] = function()
+                    PromoteSignal:Fire("B")
+                end
+            }
+        }
+    }
+end
 
 function RenderBoardBG()
     local Squares = {}
@@ -104,6 +221,9 @@ function GetPosition(Code: string)
     return UDim2.new(0.125 * File,0, 0.125 * Rank,0)
 end
 function GetNewSquare(Position: Vector2)
+    if typeof(Position) ~= "Vector2" then
+        return nil
+    end
     local BoardSize = BoardRef:get().AbsoluteSize
     local BoardPosition = BoardRef:get().AbsolutePosition
     local PieceSize = BoardSize / 8
@@ -149,6 +269,7 @@ function Module.Ui()
                 [Fusion.Ref] = BoardRef;
                 [Children] = {
                     Squares = RenderBoardBG();
+                    Promote = PromoteUi();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()
@@ -187,16 +308,17 @@ function Module.Ui()
                                 local function update(input)
                                     local delta = input.Position - dragStart
                                     mousePos = Vector2.new(input.Position.X,input.Position.Y)
-                                    --Position:set(UDim2.new(0,input.Position.X - BoardRef:get().AbsolutePosition.X,0,input.Position.Y - BoardRef:get().AbsolutePosition.X))
                                     Position:set(UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X + mouseOffset.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y + mouseOffset.Y))
                                 end
 
-                                UserInputService.InputChanged:Connect(function(input)
+                                local Con1
+                                Con1 = UserInputService.InputChanged:Connect(function(input)
                                     if input == dragInput and dragging then
                                         update(input)
                                     end
                                 end)
                                 Ui[i] = New "ImageButton" {
+                                    Name = o.Piece;
                                     BackgroundTransparency = 1;
                                     Size = UDim2.new(0.125,0,0.125);
                                     Position = Position;
@@ -204,10 +326,15 @@ function Module.Ui()
                                     ImageRectSize = Vector2.new(175, 175);
                                     ImageRectOffset = Pieces[o.Piece];
                                     [Fusion.Ref] = PieceRef;
+                                    [Fusion.Cleanup] = {
+                                        Con1;
+                                        Position;
+                                        PieceRef;
+                                    };
 
                                     -- Drag
                                     [Event "InputBegan"] = function(input)
-                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch and PromoteVis:get() ~= true then
                                             dragging = true
                                             dragStart = input.Position
                                             startPos = Position:get()
@@ -234,14 +361,41 @@ function Module.Ui()
                                                                     if Module.ActiveBoard:get().Turn == "w" then
                                                                         -- Make Move
                                                                         -- Check if premoves first
+                                                                        local ExtraCode = ""
                                                                         if o.Piece == "P" and tonumber(string.sub(NewSqr,2,2)) == 8 then
                                                                             -- Promote
-                                                                        else
-                                                                            if Module.MakeMove(OldSqr,NewSqr) == false then
+                                                                            task.wait()
+                                                                            PromoteVis:set(true)
+                                                                            PromoteOffset:set(0)
+                                                                            PromotePosition:set(Position:get())
+                                                                            local Yield = false
+                                                                            PromoteSignal:Once(function(Piece)
+                                                                                ExtraCode = Piece
+                                                                                Yield = true
+                                                                            end)
+                                                                            repeat
+                                                                                task.wait()
+                                                                            until Yield == true
+                                                                            if ExtraCode == "" then
                                                                                 Position:set(startPos)
-                                                                            else
-                                                                                OldSqr = NewSqr
+                                                                                if con then
+                                                                                    con:Disconnect()
+                                                                                    con = nil;
+                                                                                end
+                                                                                return
                                                                             end
+                                                                        elseif o.Piece == "K" and NewSqr == "h1" and OldSqr == "e1" then
+                                                                            NewSqr = "g1"
+                                                                        elseif o.Piece == "K" and NewSqr == "a1" and OldSqr == "e1" then
+                                                                            NewSqr = "c1"
+                                                                        elseif o.Piece == "K" and NewSqr == "b1" and OldSqr == "e1" then
+                                                                            NewSqr = "c1"
+                                                                        end
+                                                                        print('extra code',ExtraCode)
+                                                                        if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
+                                                                            Position:set(startPos)
+                                                                        else
+                                                                            OldSqr = NewSqr
                                                                         end
                                                                     else
                                                                         -- Premove
@@ -262,14 +416,40 @@ function Module.Ui()
                                                                     if Module.ActiveBoard:get().Turn == "b" then
                                                                         -- Make Move
                                                                         -- Check if premoves first
+                                                                        local ExtraCode = ""
                                                                         if o.Piece == "p" and tonumber(string.sub(NewSqr,2,2)) == 1 then
                                                                             -- Promote
-                                                                        else
-                                                                            if Module.MakeMove(OldSqr,NewSqr) == false then
+                                                                            task.wait()
+                                                                            PromoteVis:set(true)
+                                                                            PromoteOffset:set(175)
+                                                                            PromotePosition:set(Position:get())
+                                                                            local Yield = false
+                                                                            PromoteSignal:Once(function(Piece)
+                                                                                ExtraCode = Piece
+                                                                                Yield = true
+                                                                            end)
+                                                                            repeat
+                                                                                task.wait()
+                                                                            until Yield == true
+                                                                            if ExtraCode == "" then
                                                                                 Position:set(startPos)
-                                                                            else
-                                                                                OldSqr = NewSqr
+                                                                                if con then
+                                                                                    con:Disconnect()
+                                                                                    con = nil;
+                                                                                end
+                                                                                return
                                                                             end
+                                                                        elseif o.Piece == "k" and NewSqr == "h8" and OldSqr == "e8" then
+                                                                            NewSqr = "g8"
+                                                                        elseif o.Piece == "k" and NewSqr == "a8" and OldSqr == "e8" then
+                                                                            NewSqr = "c8"
+                                                                        elseif o.Piece == "k" and NewSqr == "b8" and OldSqr == "e8" then
+                                                                            NewSqr = "c8"
+                                                                        end
+                                                                        if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
+                                                                            Position:set(startPos)
+                                                                        else
+                                                                            OldSqr = NewSqr
                                                                         end
                                                                     else
                                                                         -- Premove
@@ -288,8 +468,10 @@ function Module.Ui()
                                                     end
 
                                                     -- Cleanup
-                                                    con:Disconnect()
-                                                    con = nil;
+                                                    if con then
+                                                        con:Disconnect()
+                                                        con = nil;
+                                                    end
                                                 end
                                             end)
                                         end
@@ -310,5 +492,11 @@ function Module.Ui()
         }
     }
 end
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        MouseButtonSignal:Fire()
+    end
+end)
 
 return Module
