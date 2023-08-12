@@ -50,10 +50,31 @@ local CheckFuncs = {
 }
 
 function Module:SetTmpSquare(Board,Square,Piece)
+    if typeof(Square) == "table" then
+        if Square[2] ~= "Promote" and Square[2] ~= "castle" then
+            Square = Square[1]
+        else
+            return Board
+        end
+    end
     local File = Files[string.lower(string.sub(Square,1,1))]
     local Rank = tonumber(string.sub(Square,2,2));
     Board.Board[Rank] = string.sub(Board.Board[Rank],0,File-1) .. Piece .. string.sub(Board.Board[Rank],File+1,9)
     return Board
+end
+
+function Module:GetPieces(Board,Color)
+    local Pieces = {}
+    for Rank = 1,8,1 do
+        for File = 1,8,1 do
+            if Color == "w" and table.find(WhitePieces,string.sub(Board.Board[Rank],File,File)) then
+                table.insert(Pieces,FileNums[File] .. tostring(Rank))
+            elseif Color == "b" and table.find(BlackPieces,string.sub(Board.Board[Rank],File,File)) then
+                table.insert(Pieces,FileNums[File] .. tostring(Rank))
+            end
+        end
+    end
+    return Pieces
 end
 
 function Module:CheckifCheck(Board,Square,Color)
@@ -65,7 +86,7 @@ function Module:CheckifCheck(Board,Square,Color)
         Pieces = Module:GetPieces(Board,"w")
     end
     for _,Piece in pairs(Pieces) do
-        local Moves = Module:GetLegalMoves(Board,Piece)
+        local Moves = Module:GetLegalMoves(Board,Piece,false)
         for _,o in pairs(Moves) do
             if typeof(o) == "table" then
             elseif o == Square then
@@ -87,7 +108,7 @@ function Module:GetSquareFromPiece(Board,Piece)
     end
 end
 
-function Module:GetLegalMoves(Board,Square,CheckCheck)
+function Module:GetLegalMoves(Board: table,Square: string,CheckCheck: boolean)
     -- Get Squares
     if string.len(Square) ~= 2 then return {} end
 
@@ -108,48 +129,64 @@ function Module:GetLegalMoves(Board,Square,CheckCheck)
     end
     local king = ColorPieces[Color]
     -- Check if king is in check
-    local PreCheck = Module:CheckifCheck(Board,Module:GetSquareFromPiece(Board,king),Color)
-    local LegalMoves = CheckFuncs[string.lower(Piece)]:GetMoves(Board,File,Rank,Color)
-    local PostCheckMoves = {}
-    -- Check if king is Still in check
-    for _,m in pairs(LegalMoves) do
-        local TmpBoard = {Board = table.clone(Board.Board), Castle = Board.Castle,Last = Board.Last}
-        -- Play Move
-        local TmpRank = tonumber(string.sub(Piece,2,2));
-        local TmpFile = Files[string.lower(string.sub(Piece,1,1))]
-        TmpBoard = Module:SetTmpSquare(TmpBoard,m,string.sub(TmpBoard.Board[TmpRank],TmpFile,TmpFile))
-        TmpBoard = Module:SetTmpSquare(TmpBoard,Piece," ")
-        local castle = false
-        if typeof(m) == "table" then
-            if m[2] == "castle" then
-                if PreCheck == false then
-                    table.insert(PostCheckMoves,m)
-                    castle = true
-                end
-            elseif m[2] == "Promote" then
-                TmpBoard = Module:SetTmpSquare(TmpBoard,m[1],m[3])
-            else
-                -- EnPassant
-                TmpBoard = Module:SetTmpSquare(TmpBoard,m[2]," ")
-            end
-        end
-        local NewKing = Module:GetSquareFromPiece(TmpBoard,ColorPieces[Color])
-        local PostCheck = Module:CheckifCheck(TmpBoard,NewKing,Color)
-        if castle == false then
-
-            if PreCheck == true and PostCheck == false then
-                table.insert(PostCheckMoves,m);
-            elseif PreCheck == false and PostCheck == false then
-                table.insert(PostCheckMoves,m);
-            end
-
-        end
-    end
+    local PreCheck = false
     if CheckCheck == true then
+        PreCheck = Module:CheckifCheck(Board,Module:GetSquareFromPiece(Board,king),Color)
+    end
+    local LegalMoves = CheckFuncs[string.lower(Piece)]:GetMoves(Board,File,Rank,Color)
+    if CheckCheck == true then
+        local PostCheckMoves = {}
+        -- Check if king is Still in check
+        for _,m in pairs(LegalMoves) do
+            local TmpBoard = {Board = table.clone(Board.Board), Castle = Board.Castle,Last = Board.Last}
+            -- Play Move
+            local TmpRank = tonumber(string.sub(Square,2,2));
+            local TmpFile = Files[string.lower(string.sub(Square,1,1))]
+            TmpBoard = Module:SetTmpSquare(TmpBoard,m,string.sub(TmpBoard.Board[TmpRank],TmpFile,TmpFile))
+            TmpBoard = Module:SetTmpSquare(TmpBoard,Square," ")
+            local castle = false
+            if typeof(m) == "table" then
+                if m[2] == "castle" then
+                    if PreCheck == false then
+                        table.insert(PostCheckMoves,m)
+                        castle = true
+                    end
+                elseif m[2] == "Promote" then
+                    TmpBoard = Module:SetTmpSquare(TmpBoard,m[1],m[3])
+                else
+                    -- EnPassant
+                    TmpBoard = Module:SetTmpSquare(TmpBoard,m[2]," ")
+                end
+            end
+            if castle == false then
+                local NewKing = Module:GetSquareFromPiece(TmpBoard,ColorPieces[Color])
+                local PostCheck = Module:CheckifCheck(TmpBoard,NewKing,Color)
+
+                if PreCheck == true and PostCheck == false then
+                    table.insert(PostCheckMoves,m);
+                elseif PreCheck == false and PostCheck == false then
+                    table.insert(PostCheckMoves,m);
+                end
+
+            end
+        end
+
         return PostCheckMoves
     else
         return LegalMoves
     end
+end
+
+function Module:CheckMove(Board: table,OldSqr: string,NewSqr: string)
+    local LegalMoves = Module:GetLegalMoves(Board,OldSqr,true)
+    for _,m in pairs(LegalMoves) do
+        if typeof(m) == "table" and m[1] == NewSqr then
+            return true
+        elseif m == NewSqr then
+            return true
+        end
+    end
+    return false
 end
 
 return Module

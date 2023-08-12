@@ -37,6 +37,13 @@ local ColorPieces = {
 }
 
 function Module:SetSquare(Board,Square,Piece)
+    if typeof(Square) == "table" then
+        if Square[2] ~= "Promote" and Square[2] ~= "castle" then
+            Square = Square[1]
+        else
+            return Board
+        end
+    end
     local File = Files[string.lower(string.sub(Square,1,1))]
     local Rank = tonumber(string.sub(Square,2,2));
     Board.Board[Rank] = string.sub(Board.Board[Rank],0,File-1) .. Piece .. string.sub(Board.Board[Rank],File+1,9)

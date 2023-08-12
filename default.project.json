@@ -21,7 +21,11 @@
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Ui": {
-          "$path": "src/ui"
+          "$path": "src/ui",
+
+          "ClientCore": {
+            "$path": "src/clientcore"
+          }
         }
       }
     }

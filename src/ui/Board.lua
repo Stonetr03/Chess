@@ -2,9 +2,11 @@
 
 local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Fusion"))
 local Signal = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Signal"))
+local ClientCore = require(script.Parent:WaitForChild("ClientCore"))
 local UserInputService = game:GetService("UserInputService")
 
 local Pieces = require(script.Parent:WaitForChild("Pieces"))
+local Modifiers = require(script.Parent:WaitForChild("MoveModifier"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -39,8 +41,6 @@ local PromoteVis = Value(false)
 local PromotePosition = Value(UDim2.new(0,0,0,0))
 
 MouseButtonSignal:Connect(function()
-    print("Mouse Click")
-    print("PromoteVis:", PromoteVis:get());
     if PromoteVis:get() == true then
         PromoteSignal:Fire("")
         task.wait()
@@ -349,13 +349,21 @@ function Module.Ui()
                                                     -- Get Nearest Square
                                                     local NewSqr = GetNewSquare(mousePos)
                                                     if NewSqr then
+                                                        NewSqr = Modifiers(o.Piece,OldSqr,NewSqr)
+                                                        if ClientCore:CheckMove(Module.ActiveBoard:get(),OldSqr,NewSqr) == false or PromoteVis:get() == true then
+                                                            Position:set(startPos)
+                                                            if con then
+                                                                con:Disconnect()
+                                                                con = nil;
+                                                            end
+                                                            return
+                                                        end
                                                         -- Make sure its your piece and not opponants piece
                                                         if Module.ActiveBoard:get().White and Module.ActiveBoard:get().White == game.Players.LocalPlayer then
                                                             -- Is the w player
                                                             if table.find(PieceColors.w,o.Piece) then
                                                                 -- Can Move
                                                                 Position:set(GetPosition(NewSqr))
-                                                                print(NewSqr,OldSqr)
                                                                 if NewSqr ~= OldSqr then
                                                                     -- Moved Piece
                                                                     if Module.ActiveBoard:get().Turn == "w" then
@@ -384,14 +392,7 @@ function Module.Ui()
                                                                                 end
                                                                                 return
                                                                             end
-                                                                        elseif o.Piece == "K" and NewSqr == "h1" and OldSqr == "e1" then
-                                                                            NewSqr = "g1"
-                                                                        elseif o.Piece == "K" and NewSqr == "a1" and OldSqr == "e1" then
-                                                                            NewSqr = "c1"
-                                                                        elseif o.Piece == "K" and NewSqr == "b1" and OldSqr == "e1" then
-                                                                            NewSqr = "c1"
                                                                         end
-                                                                        print('extra code',ExtraCode)
                                                                         if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
                                                                             Position:set(startPos)
                                                                         else
@@ -410,7 +411,6 @@ function Module.Ui()
                                                             if table.find(PieceColors.b,o.Piece) then
                                                                 -- Can Move
                                                                 Position:set(GetPosition(NewSqr))
-                                                                print(NewSqr,OldSqr)
                                                                 if NewSqr ~= OldSqr then
                                                                     -- Moved Piece
                                                                     if Module.ActiveBoard:get().Turn == "b" then
@@ -439,12 +439,6 @@ function Module.Ui()
                                                                                 end
                                                                                 return
                                                                             end
-                                                                        elseif o.Piece == "k" and NewSqr == "h8" and OldSqr == "e8" then
-                                                                            NewSqr = "g8"
-                                                                        elseif o.Piece == "k" and NewSqr == "a8" and OldSqr == "e8" then
-                                                                            NewSqr = "c8"
-                                                                        elseif o.Piece == "k" and NewSqr == "b8" and OldSqr == "e8" then
-                                                                            NewSqr = "c8"
                                                                         end
                                                                         if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
                                                                             Position:set(startPos)
@@ -455,7 +449,6 @@ function Module.Ui()
                                                                         -- Premove
                                                                         Position:set(startPos)
                                                                     end
-                                                                    OldSqr = NewSqr
                                                                 end
                                                             else
                                                                 Position:set(startPos)
