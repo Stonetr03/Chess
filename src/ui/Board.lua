@@ -7,6 +7,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Pieces = require(script.Parent:WaitForChild("Pieces"))
 local Modifiers = require(script.Parent:WaitForChild("MoveModifier"))
+local GameOver = require(script.Parent:WaitForChild("GameOver"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -270,6 +271,7 @@ function Module.Ui()
                 [Children] = {
                     Squares = RenderBoardBG();
                     Promote = PromoteUi();
+                    GameOver = GameOver.Ui();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()
@@ -350,7 +352,7 @@ function Module.Ui()
                                                     local NewSqr = GetNewSquare(mousePos)
                                                     if NewSqr then
                                                         NewSqr = Modifiers(o.Piece,OldSqr,NewSqr)
-                                                        if ClientCore:CheckMove(Module.ActiveBoard:get(),OldSqr,NewSqr) == false or PromoteVis:get() == true then
+                                                        if ClientCore:CheckMove(Module.ActiveBoard:get(),OldSqr,NewSqr) == false or PromoteVis:get() == true or Module.ActiveBoard:get().Status ~= "" then
                                                             Position:set(startPos)
                                                             if con then
                                                                 con:Disconnect()

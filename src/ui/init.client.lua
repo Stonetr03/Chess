@@ -10,6 +10,7 @@ local Value = Fusion.Value
 
 local Menu = require(script:WaitForChild("Menu"))
 local Board = require(script:WaitForChild("Board"))
+local GameOver = require(script:WaitForChild("GameOver"))
 
 -- Values
 
@@ -31,6 +32,10 @@ Board.ActiveGame = ActiveGame
 Board.ActiveBoard = ActiveBoard
 Board.RenderingBoard = RenderingBoard
 Board.BoardFlipped = BoardFlipped
+
+GameOver.ActiveBoard = ActiveBoard
+local LastStatus = ""
+GameOver:init()
 
 -- Ui
 local ScreenGui = New "ScreenGui" {
@@ -110,6 +115,7 @@ Knit.Start({ServicePromises = false}):andThen(function()
         ManagePlayers()
         if players[1] == game.Players.LocalPlayer or players[2] == game.Players.LocalPlayer then
             -- Spectate Game
+            LastStatus = ""
             ActiveGame:set(hash)
             ActiveBoard:set(Newboard)
             RenderingBoard:set(Newboard.Board)
@@ -126,6 +132,12 @@ Knit.Start({ServicePromises = false}):andThen(function()
         if ActiveGame:get() == Hash then
             ActiveBoard:set(Newboard);
             RenderingBoard:set(Newboard.Board)
+            if Newboard.Status then
+                if Newboard.Status ~= "" and LastStatus == "" then
+                    GameOver.Visible:set(true);
+                end
+                LastStatus = Newboard.Status
+            end
         end
     end)
 

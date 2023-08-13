@@ -322,28 +322,28 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
             Winner = "w";
             NewPgn = NewPgn .. " 1-0"
         end
-        Board.Status = "Checkmate;" .. Winner
+        Board.Status = "checkmate;" .. Winner
     elseif Checkmate:CheckForStalemate(Board,Board.Turn) == true then
         -- Check for Stalemate
         LastTurn = Board.Turn
         Board.Turn = ""
-        Board.Status = "Draw;Stalemate"
+        Board.Status = "draw;stalemate"
         NewPgn = NewPgn .. " 1/2-1/2"
     elseif Checkmate:CheckForInsufficientMaterial(Board) == true then
         -- Check for Insuffient Material
         LastTurn = Board.Turn
         Board.Turn = ""
-        Board.Status = "Draw;insufficient material"
+        Board.Status = "draw;insufficient material"
         NewPgn = NewPgn .. " 1/2-1/2"
     elseif DrawThreeFold == true then
         LastTurn = Board.Turn
         Board.Turn = ""
-        Board.Status = "Draw;threefold repetition"
+        Board.Status = "draw;threefold repetition"
         NewPgn = NewPgn .. " 1/2-1/2"
     elseif Board.Move50 >= 50 then
         LastTurn = Board.Turn
         Board.Turn = ""
-        Board.Status = "Draw;50 move rule."
+        Board.Status = "draw;50 move rule"
         NewPgn = NewPgn .. " 1/2-1/2"
     else
         -- Check for Check
