@@ -11,6 +11,7 @@ local Value = Fusion.Value
 local Menu = require(script:WaitForChild("Menu"))
 local Board = require(script:WaitForChild("Board"))
 local GameOver = require(script:WaitForChild("GameOver"))
+local Letters = require(script:WaitForChild("Letters"))
 
 -- Values
 
@@ -36,6 +37,8 @@ Board.BoardFlipped = BoardFlipped
 GameOver.ActiveBoard = ActiveBoard
 local LastStatus = ""
 GameOver:init()
+
+Letters.BoardFlipped = BoardFlipped
 
 -- Ui
 local ScreenGui = New "ScreenGui" {
