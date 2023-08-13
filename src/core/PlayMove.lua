@@ -315,7 +315,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
         Board.Turn = ""
         NewPgn = NewPgn .. "#"
         local Winner
-        if Board.Turn == "w" then
+        if LastTurn == "w" then
             Winner = "b";
             NewPgn = NewPgn .. " 0-1"
         else
