@@ -62,7 +62,7 @@ function Module:Draw(Hash: string,Player: Player,v: boolean)
     end
     if Board.Draw[1] == true and Board.Draw[2] == true then
         Board.Turn = ""
-        Board.Status = "Draw;Agreement"
+        Board.Status = "draw;agreement"
         Board.PGN = Board.PGN .. " 1/2-1/2"
         Module.Signals[Hash]:Fire({},Board)
     end
@@ -73,12 +73,12 @@ function Module:Resign(Hash: string,Player: Player)
     if Board then
         if Board.White == Player then
             Board.Turn = ""
-            Board.Status = "Resign;b"
+            Board.Status = "resign;b"
             Board.PGN = Board.PGN .. " 0-1"
             Module.Signals[Hash]:Fire({},Board)
         elseif Board.Black == Player then
             Board.Turn = ""
-            Board.Status = "Resign;w"
+            Board.Status = "resign;w"
             Board.PGN = Board.PGN .. " 1-0"
             Module.Signals[Hash]:Fire({},Board)
         end

@@ -52,6 +52,28 @@ function Module:init()
                 end
 
                 Desc:set("by checkmate");
+            elseif StatSplit[1] == "resign" then
+                if Board.White == game.Players.LocalPlayer and StatSplit[2] == "w" then
+                    Title:set("You Win!")
+                elseif Board.Black == game.Players.LocalPlayer and StatSplit[2] == "b" then
+                    Title:set("You Win!")
+                elseif StatSplit[2] == "w" then
+                    Title:set("White Wins")
+                elseif StatSplit[2] == "b" then
+                    Title:set("Black Wins")
+                end
+
+                if StatSplit[2] == "w" then
+                    Score:set("1 - 0")
+                    WColor:set(WinColor)
+                    BColor:set(DrawColor)
+                elseif StatSplit[2] == "b" then
+                    Score:set("0 - 1")
+                    WColor:set(DrawColor)
+                    BColor:set(WinColor)
+                end
+
+                Desc:set("by resignation");
             elseif StatSplit[1] == "draw" then
                 Title:set("Draw");
                 Desc:set("by " .. tostring(StatSplit[2]))
