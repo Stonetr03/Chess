@@ -9,6 +9,7 @@ local Pieces = require(script.Parent:WaitForChild("Pieces"))
 local Modifiers = require(script.Parent:WaitForChild("MoveModifier"))
 local GameOver = require(script.Parent:WaitForChild("GameOver"))
 local Letters = require(script.Parent:WaitForChild("Letters"))
+local Clocks = require(script.Parent:WaitForChild("Clocks"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -274,6 +275,7 @@ function Module.Ui()
                     Promote = PromoteUi();
                     GameOver = GameOver.Ui();
                     Letters = Letters.Ui();
+                    Clocks = Clocks.Ui();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()

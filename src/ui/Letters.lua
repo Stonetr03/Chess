@@ -5,11 +5,9 @@ local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packag
 local New = Fusion.New
 local Children = Fusion.Children
 local Computed = Fusion.Computed
-local Value = Fusion.Value
-local Tween = Fusion.Tween
 
 local Module = {
-    BoardFlipped = Value(false);
+    BoardFlipped = nil;
 }
 
 local InvertRank = {

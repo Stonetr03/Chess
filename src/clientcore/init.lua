@@ -189,4 +189,91 @@ function Module:CheckMove(Board: table,OldSqr: string,NewSqr: string)
     return false
 end
 
+local PieceValue = {
+    p = 1;
+    r = 5;
+    n = 3;
+    b = 3;
+    q = 9;
+    k = 0;
+}
+
+function Module:GetPieceDifference(Board)
+    local WhiteCount = {
+        p = 0;
+        r = 0;
+        n = 0;
+        b = 0;
+        q = 0;
+        k = 0;
+    }
+    local BlackCount = {
+        p = 0;
+        r = 0;
+        n = 0;
+        b = 0;
+        q = 0;
+        k = 0;
+    }
+    for rank = 1,8,1 do
+        for file = 1,8,1 do
+            local piece = string.sub(Board.Board[rank],file,file)
+            if piece ~= " " then
+                if table.find(WhitePieces,piece) then
+                    -- White Piece
+                    WhiteCount[string.lower(piece)] += 1
+                elseif table.find(BlackPieces,piece) then
+                    -- Black Piece
+                    BlackCount[string.lower(piece)] += 1
+                end
+            end
+        end
+    end
+    local WhiteMissing = {
+        p = 8;
+        r = 2;
+        n = 2;
+        b = 2;
+        q = 1;
+        k = 1;
+    }
+    local BlackMissing = {
+        p = 8;
+        r = 2;
+        n = 2;
+        b = 2;
+        q = 1;
+        k = 1;
+    }
+    local WhiteValue = 0;
+    for i,v in pairs(WhiteCount) do
+        WhiteValue += v * PieceValue[i]
+
+        WhiteMissing[i] -= v
+        if WhiteMissing[i] < 0 then
+            WhiteMissing[i] = 0
+        end
+    end
+    local BlackValue = 0;
+    for i,v in pairs(BlackCount) do
+        BlackValue += v * PieceValue[i]
+
+        BlackMissing[i] -= v
+        if BlackMissing[i] < 0 then
+            BlackMissing[i] = 0
+        end
+    end
+
+    return {
+        w = {
+            diff = WhiteValue - BlackValue;
+            missing = WhiteMissing
+        };
+        b = {
+            diff = BlackValue - WhiteValue;
+            missing = BlackMissing
+        };
+    }
+end
+
 return Module
