@@ -13,6 +13,7 @@ local Board = require(script:WaitForChild("Board"))
 local GameOver = require(script:WaitForChild("GameOver"))
 local Letters = require(script:WaitForChild("Letters"))
 local Clocks = require(script:WaitForChild("Clocks"))
+local Dots = require(script:WaitForChild("Dots"))
 
 -- Values
 
@@ -44,6 +45,8 @@ Letters.BoardFlipped = BoardFlipped
 Clocks.ActiveBoard = ActiveBoard;
 Clocks.BoardFlipped = BoardFlipped;
 Clocks:init()
+
+Dots.BoardFlipped = BoardFlipped;
 
 -- Ui
 local ScreenGui = New "ScreenGui" {

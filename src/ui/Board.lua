@@ -10,6 +10,7 @@ local Modifiers = require(script.Parent:WaitForChild("MoveModifier"))
 local GameOver = require(script.Parent:WaitForChild("GameOver"))
 local Letters = require(script.Parent:WaitForChild("Letters"))
 local Clocks = require(script.Parent:WaitForChild("Clocks"))
+local Dots = require(script.Parent:WaitForChild("Dots"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -49,6 +50,10 @@ MouseButtonSignal:Connect(function()
         task.wait()
         PromoteVis:set(false)
     end
+    Dots.RenderingDots:set({
+        Callback = nil;
+        ToRender = {};
+    })
 end);
 
 function PromoteUi()
@@ -276,6 +281,7 @@ function Module.Ui()
                     GameOver = GameOver.Ui();
                     Letters = Letters.Ui();
                     Clocks = Clocks.Ui();
+                    Dots = Dots.Ui();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()
@@ -323,6 +329,133 @@ function Module.Ui()
                                         update(input)
                                     end
                                 end)
+
+                                local function MakeMove(NewSqr)
+                                    NewSqr = Modifiers(o.Piece,OldSqr,NewSqr)
+                                    if ClientCore:CheckMove(Module.ActiveBoard:get(),OldSqr,NewSqr) == false or PromoteVis:get() == true or Module.ActiveBoard:get().Status ~= "" then
+                                        Position:set(startPos)
+                                        if con then
+                                            con:Disconnect()
+                                            con = nil;
+                                        end
+                                        return
+                                    end
+                                    -- Make sure its your piece and not opponants piece
+                                    if Module.ActiveBoard:get().White and Module.ActiveBoard:get().White == game.Players.LocalPlayer then
+                                        -- Is the w player
+                                        if table.find(PieceColors.w,o.Piece) then
+                                            -- Can Move
+                                            Position:set(GetPosition(NewSqr))
+                                            if NewSqr ~= OldSqr then
+                                                -- Moved Piece
+                                                if Module.ActiveBoard:get().Turn == "w" then
+                                                    -- Make Move
+                                                    -- Check if premoves first
+                                                    local ExtraCode = ""
+                                                    if o.Piece == "P" and tonumber(string.sub(NewSqr,2,2)) == 8 then
+                                                        -- Promote
+                                                        task.wait()
+                                                        PromoteVis:set(true)
+                                                        PromoteOffset:set(0)
+                                                        PromotePosition:set(Position:get())
+                                                        local Yield = false
+                                                        PromoteSignal:Once(function(Piece)
+                                                            ExtraCode = Piece
+                                                            Yield = true
+                                                        end)
+                                                        repeat
+                                                            task.wait()
+                                                        until Yield == true
+                                                        if ExtraCode == "" then
+                                                            Position:set(startPos)
+                                                            if con then
+                                                                con:Disconnect()
+                                                                con = nil;
+                                                            end
+                                                            return
+                                                        end
+                                                    end
+                                                    if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
+                                                        Position:set(startPos)
+                                                    else
+                                                        OldSqr = NewSqr
+                                                        Dots.RenderingDots:set({
+                                                            Callback = nil;
+                                                            ToRender = {};
+                                                        })
+                                                    end
+                                                else
+                                                    -- Premove
+                                                    Position:set(startPos)
+                                                    Dots.RenderingDots:set({
+                                                        Callback = nil;
+                                                        ToRender = {};
+                                                    })
+                                                end
+                                            end
+                                        else
+                                            Position:set(startPos)
+                                        end
+                                    elseif Module.ActiveBoard:get().Black and Module.ActiveBoard:get().Black == game.Players.LocalPlayer then
+                                        -- Is the b player
+                                        if table.find(PieceColors.b,o.Piece) then
+                                            -- Can Move
+                                            Position:set(GetPosition(NewSqr))
+                                            if NewSqr ~= OldSqr then
+                                                -- Moved Piece
+                                                if Module.ActiveBoard:get().Turn == "b" then
+                                                    -- Make Move
+                                                    -- Check if premoves first
+                                                    local ExtraCode = ""
+                                                    if o.Piece == "p" and tonumber(string.sub(NewSqr,2,2)) == 1 then
+                                                        -- Promote
+                                                        task.wait()
+                                                        PromoteVis:set(true)
+                                                        PromoteOffset:set(175)
+                                                        PromotePosition:set(Position:get())
+                                                        local Yield = false
+                                                        PromoteSignal:Once(function(Piece)
+                                                            ExtraCode = Piece
+                                                            Yield = true
+                                                        end)
+                                                        repeat
+                                                            task.wait()
+                                                        until Yield == true
+                                                        if ExtraCode == "" then
+                                                            Position:set(startPos)
+                                                            if con then
+                                                                con:Disconnect()
+                                                                con = nil;
+                                                            end
+                                                            return
+                                                        end
+                                                    end
+                                                    if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
+                                                        Position:set(startPos)
+                                                    else
+                                                        OldSqr = NewSqr
+                                                        Dots.RenderingDots:set({
+                                                            Callback = nil;
+                                                            ToRender = {};
+                                                        })
+                                                    end
+                                                else
+                                                    -- Premove
+                                                    Position:set(startPos)
+                                                    Dots.RenderingDots:set({
+                                                        Callback = nil;
+                                                        ToRender = {};
+                                                    })
+                                                end
+                                            end
+                                        else
+                                            Position:set(startPos)
+                                        end
+                                    else
+                                        Position:set(startPos)
+                                    end
+                                end
+
                                 Ui[i] = New "ImageButton" {
                                     Name = o.Piece;
                                     BackgroundTransparency = 1;
@@ -339,6 +472,17 @@ function Module.Ui()
                                     };
 
                                     -- Drag
+                                    [Event "MouseButton1Down"] = function()
+                                        if (Module.ActiveBoard:get().White and Module.ActiveBoard:get().White == game.Players.LocalPlayer and table.find(PieceColors.w,o.Piece)) or (Module.ActiveBoard:get().Black and Module.ActiveBoard:get().Black == game.Players.LocalPlayer and table.find(PieceColors.b,o.Piece)) then
+                                            task.wait()
+                                            Dots.RenderingDots:set({
+                                                Callback = function(NewSqr)
+                                                    MakeMove(NewSqr)
+                                                end;
+                                                ToRender = ClientCore:GetLegalMoves(Module.ActiveBoard:get(),FileNumToTxt[o.File] .. tostring(o.Rank),true);
+                                            })
+                                        end
+                                    end;
                                     [Event "InputBegan"] = function(input)
                                         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch and PromoteVis:get() ~= true then
                                             dragging = true
@@ -355,113 +499,7 @@ function Module.Ui()
                                                     -- Get Nearest Square
                                                     local NewSqr = GetNewSquare(mousePos)
                                                     if NewSqr then
-                                                        NewSqr = Modifiers(o.Piece,OldSqr,NewSqr)
-                                                        if ClientCore:CheckMove(Module.ActiveBoard:get(),OldSqr,NewSqr) == false or PromoteVis:get() == true or Module.ActiveBoard:get().Status ~= "" then
-                                                            Position:set(startPos)
-                                                            if con then
-                                                                con:Disconnect()
-                                                                con = nil;
-                                                            end
-                                                            return
-                                                        end
-                                                        -- Make sure its your piece and not opponants piece
-                                                        if Module.ActiveBoard:get().White and Module.ActiveBoard:get().White == game.Players.LocalPlayer then
-                                                            -- Is the w player
-                                                            if table.find(PieceColors.w,o.Piece) then
-                                                                -- Can Move
-                                                                Position:set(GetPosition(NewSqr))
-                                                                if NewSqr ~= OldSqr then
-                                                                    -- Moved Piece
-                                                                    if Module.ActiveBoard:get().Turn == "w" then
-                                                                        -- Make Move
-                                                                        -- Check if premoves first
-                                                                        local ExtraCode = ""
-                                                                        if o.Piece == "P" and tonumber(string.sub(NewSqr,2,2)) == 8 then
-                                                                            -- Promote
-                                                                            task.wait()
-                                                                            PromoteVis:set(true)
-                                                                            PromoteOffset:set(0)
-                                                                            PromotePosition:set(Position:get())
-                                                                            local Yield = false
-                                                                            PromoteSignal:Once(function(Piece)
-                                                                                ExtraCode = Piece
-                                                                                Yield = true
-                                                                            end)
-                                                                            repeat
-                                                                                task.wait()
-                                                                            until Yield == true
-                                                                            if ExtraCode == "" then
-                                                                                Position:set(startPos)
-                                                                                if con then
-                                                                                    con:Disconnect()
-                                                                                    con = nil;
-                                                                                end
-                                                                                return
-                                                                            end
-                                                                        end
-                                                                        if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
-                                                                            Position:set(startPos)
-                                                                        else
-                                                                            OldSqr = NewSqr
-                                                                        end
-                                                                    else
-                                                                        -- Premove
-                                                                        Position:set(startPos)
-                                                                    end
-                                                                end
-                                                            else
-                                                                Position:set(startPos)
-                                                            end
-                                                        elseif Module.ActiveBoard:get().Black and Module.ActiveBoard:get().Black == game.Players.LocalPlayer then
-                                                            -- Is the b player
-                                                            if table.find(PieceColors.b,o.Piece) then
-                                                                -- Can Move
-                                                                Position:set(GetPosition(NewSqr))
-                                                                if NewSqr ~= OldSqr then
-                                                                    -- Moved Piece
-                                                                    if Module.ActiveBoard:get().Turn == "b" then
-                                                                        -- Make Move
-                                                                        -- Check if premoves first
-                                                                        local ExtraCode = ""
-                                                                        if o.Piece == "p" and tonumber(string.sub(NewSqr,2,2)) == 1 then
-                                                                            -- Promote
-                                                                            task.wait()
-                                                                            PromoteVis:set(true)
-                                                                            PromoteOffset:set(175)
-                                                                            PromotePosition:set(Position:get())
-                                                                            local Yield = false
-                                                                            PromoteSignal:Once(function(Piece)
-                                                                                ExtraCode = Piece
-                                                                                Yield = true
-                                                                            end)
-                                                                            repeat
-                                                                                task.wait()
-                                                                            until Yield == true
-                                                                            if ExtraCode == "" then
-                                                                                Position:set(startPos)
-                                                                                if con then
-                                                                                    con:Disconnect()
-                                                                                    con = nil;
-                                                                                end
-                                                                                return
-                                                                            end
-                                                                        end
-                                                                        if Module.MakeMove(OldSqr,NewSqr,ExtraCode) == false then
-                                                                            Position:set(startPos)
-                                                                        else
-                                                                            OldSqr = NewSqr
-                                                                        end
-                                                                    else
-                                                                        -- Premove
-                                                                        Position:set(startPos)
-                                                                    end
-                                                                end
-                                                            else
-                                                                Position:set(startPos)
-                                                            end
-                                                        else
-                                                            Position:set(startPos)
-                                                        end
+                                                        MakeMove(NewSqr)
                                                     else
                                                         Position:set(startPos)
                                                     end

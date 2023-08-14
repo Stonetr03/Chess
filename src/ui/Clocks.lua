@@ -61,7 +61,6 @@ function MissingPiece(Piece,Count,offset)
     local ui = {}
 
     for _ = 1,Count,1 do
-        print("Create missing piece")
         table.insert(ui,New "ImageLabel" {
             BackgroundTransparency = 1;
             Image = Pieces.ImageId;
