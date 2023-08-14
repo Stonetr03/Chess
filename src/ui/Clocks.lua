@@ -199,6 +199,21 @@ function Module.Ui()
                         end
                         return Color3.fromRGB(226,226,226);
                     end);
+                    TextTransparency = Computed(function()
+                        if Module.BoardFlipped:get() == false then
+                            if Module.ActiveBoard:get().Turn == "w" then
+                                return 0
+                            else
+                                return 0.5;
+                            end
+                        else
+                            if Module.ActiveBoard:get().Turn == "b" then
+                                return 0
+                            else
+                                return 0.5;
+                            end
+                        end
+                    end);
                     TextScaled = true;
                     [Children] = New "UICorner" {
                         CornerRadius = UDim.new(0,8);
@@ -328,6 +343,21 @@ function Module.Ui()
                             return Color3.fromRGB(26,26,26);
                         end
                         return Color3.fromRGB(226,226,226);
+                    end);
+                    TextTransparency = Computed(function()
+                        if Module.BoardFlipped:get() == true then
+                            if Module.ActiveBoard:get().Turn == "w" then
+                                return 0
+                            else
+                                return 0.5;
+                            end
+                        else
+                            if Module.ActiveBoard:get().Turn == "b" then
+                                return 0
+                            else
+                                return 0.5;
+                            end
+                        end
                     end);
                     TextScaled = true;
                     [Children] = New "UICorner" {

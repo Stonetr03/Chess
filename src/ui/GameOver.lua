@@ -1,6 +1,7 @@
 -- Stonetr03
 
 local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Fusion"))
+local UserInputService = game:GetService("UserInputService")
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -164,5 +165,13 @@ function Module.Ui()
         }
     }
 end
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if Module.Visible:get() == true then
+            Module.Visible:set(false)
+        end
+    end
+end)
 
 return Module
