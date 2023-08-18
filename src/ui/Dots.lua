@@ -54,6 +54,9 @@ function Module.Ui()
     return Fusion.ForPairs(Computed(function()
         return Module.RenderingDots:get().ToRender
     end),function(i,o)
+        if typeof(o) == "table" then
+            o = o[1]
+        end
         return i, New "ImageButton" {
             BackgroundTransparency = 1;
             Image = "";

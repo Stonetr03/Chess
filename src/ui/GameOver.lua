@@ -102,7 +102,7 @@ function Module.Ui()
             end
         end),TweenInfo.new(0.4));
         Size = UDim2.new(0.4,0,0.3,0);
-        ZIndex = 10;
+        ZIndex = 200;
 
         [Children] = {
             New "UICorner" {

@@ -14,6 +14,7 @@ local GameOver = require(script:WaitForChild("GameOver"))
 local Letters = require(script:WaitForChild("Letters"))
 local Clocks = require(script:WaitForChild("Clocks"))
 local Dots = require(script:WaitForChild("Dots"))
+local Highlights = require(script:WaitForChild("Highlights"))
 
 -- Values
 
@@ -47,6 +48,7 @@ Clocks.BoardFlipped = BoardFlipped;
 Clocks:init()
 
 Dots.BoardFlipped = BoardFlipped;
+Highlights.BoardFlipped = BoardFlipped;
 
 -- Ui
 local ScreenGui = New "ScreenGui" {
@@ -149,6 +151,7 @@ Knit.Start({ServicePromises = false}):andThen(function()
                 end
                 LastStatus = Newboard.Status
             end
+            Highlights:SetMoveHighlight(Moves)
         end
     end)
 

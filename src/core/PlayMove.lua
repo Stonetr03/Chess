@@ -224,7 +224,7 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
             else
                 Board = Module:SetSquare(Board,Rooks[2],"r")
             end
-            table.insert(ReturnMoves,Rooks[1] .. "-" .. Rooks[2])
+            table.insert(ReturnMoves,Rooks[1] .. "-" .. Rooks[2] .. "-castle")
 
             -- PGN
             if string.sub(Rooks[1],1,1) == "a" then

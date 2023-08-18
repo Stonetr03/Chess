@@ -11,6 +11,7 @@ local GameOver = require(script.Parent:WaitForChild("GameOver"))
 local Letters = require(script.Parent:WaitForChild("Letters"))
 local Clocks = require(script.Parent:WaitForChild("Clocks"))
 local Dots = require(script.Parent:WaitForChild("Dots"))
+local Highlights = require(script.Parent:WaitForChild("Highlights"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -54,6 +55,7 @@ MouseButtonSignal:Connect(function()
         Callback = nil;
         ToRender = {};
     })
+    Highlights:RemoveClickHighlight()
 end);
 
 function PromoteUi()
@@ -282,6 +284,7 @@ function Module.Ui()
                     Letters = Letters.Ui();
                     Clocks = Clocks.Ui();
                     Dots = Dots.Ui();
+                    Highlights = Highlights.Ui();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()
@@ -383,6 +386,7 @@ function Module.Ui()
                                                             Callback = nil;
                                                             ToRender = {};
                                                         })
+                                                        Highlights:RemoveClickHighlight()
                                                     end
                                                 else
                                                     -- Premove
@@ -391,6 +395,7 @@ function Module.Ui()
                                                         Callback = nil;
                                                         ToRender = {};
                                                     })
+                                                    Highlights:RemoveClickHighlight()
                                                 end
                                             end
                                         else
@@ -438,6 +443,7 @@ function Module.Ui()
                                                             Callback = nil;
                                                             ToRender = {};
                                                         })
+                                                        Highlights:RemoveClickHighlight()
                                                     end
                                                 else
                                                     -- Premove
@@ -446,6 +452,7 @@ function Module.Ui()
                                                         Callback = nil;
                                                         ToRender = {};
                                                     })
+                                                    Highlights:RemoveClickHighlight()
                                                 end
                                             end
                                         else
@@ -464,6 +471,7 @@ function Module.Ui()
                                     Image = Pieces.ImageId;
                                     ImageRectSize = Vector2.new(175, 175);
                                     ImageRectOffset = Pieces[o.Piece];
+                                    ZIndex = 3;
                                     [Fusion.Ref] = PieceRef;
                                     [Fusion.Cleanup] = {
                                         Con1;
@@ -481,6 +489,7 @@ function Module.Ui()
                                                 end;
                                                 ToRender = ClientCore:GetLegalMoves(Module.ActiveBoard:get(),FileNumToTxt[o.File] .. tostring(o.Rank),true);
                                             })
+                                            Highlights:SetClickHighlight(FileNumToTxt[o.File] .. tostring(o.Rank))
                                         end
                                     end;
                                     [Event "InputBegan"] = function(input)
