@@ -88,6 +88,10 @@ end
 
 function Module:SetMoveHighlight(Moves)
     Module:RemoveMoveHighlight()
+    Module.Rendering:set({})
+    if ClickHighlight ~= "" then
+        Module:SetClickHighlight(ClickHighlight)
+    end
     for _,o in pairs(Moves) do
         if string.split(o,"-")[2] == "x" or string.split(o,"-")[3] == "castle" then
             table.remove(Moves,table.find(Moves,o));
@@ -101,6 +105,24 @@ function Module:SetMoveHighlight(Moves)
         render[MoveHighlight1] = "Yellow";
         render[MoveHighlight2] = "Yellow";
         Module.Rendering:set(render);
+    end
+end
+
+function Module:RemoveHighlight(Sqr)
+    if MoveHighlight1 == Sqr or MoveHighlight2 == Sqr or ClickHighlight == Sqr then
+        local render = Module.Rendering:get()
+        render[Sqr] = "Yellow";
+        Module.Rendering:set(render);
+    else
+        local render = Module.Rendering:get()
+        render[Sqr] = nil;
+        Module.Rendering:set(render);
+    end
+end
+
+function Module:RemoveAll()
+    for sqr,_ in pairs(Module.Rendering:get()) do
+        Module:RemoveHighlight(sqr)
     end
 end
 

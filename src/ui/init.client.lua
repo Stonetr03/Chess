@@ -179,3 +179,5 @@ Knit.Start({ServicePromises = false}):andThen(function()
         return Chess:MakeMove(ActiveGame:get(),Sqr,Move,Promote)
     end
 end):catch(warn)
+
+game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable

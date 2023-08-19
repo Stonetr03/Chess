@@ -44,6 +44,7 @@ local PromoteSignal = Signal.new()
 local PromoteOffset = Value(0)
 local PromoteVis = Value(false)
 local PromotePosition = Value(UDim2.new(0,0,0,0))
+local RightClickDown = ""
 
 MouseButtonSignal:Connect(function()
     if PromoteVis:get() == true then
@@ -172,7 +173,7 @@ function RenderBoardBG()
                 }
                 table.insert(Squares,Ui)
             end
-            
+
             color = not color
         end
         color = not color
@@ -479,7 +480,7 @@ function Module.Ui()
                                         PieceRef;
                                     };
 
-                                    -- Drag
+                                    -- Dots
                                     [Event "MouseButton1Down"] = function()
                                         if (Module.ActiveBoard:get().White and Module.ActiveBoard:get().White == game.Players.LocalPlayer and table.find(PieceColors.w,o.Piece)) or (Module.ActiveBoard:get().Black and Module.ActiveBoard:get().Black == game.Players.LocalPlayer and table.find(PieceColors.b,o.Piece)) then
                                             task.wait()
@@ -492,6 +493,8 @@ function Module.Ui()
                                             Highlights:SetClickHighlight(FileNumToTxt[o.File] .. tostring(o.Rank))
                                         end
                                     end;
+
+                                    -- Drag
                                     [Event "InputBegan"] = function(input)
                                         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch and PromoteVis:get() ~= true then
                                             dragging = true
@@ -542,6 +545,45 @@ end
 UserInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         MouseButtonSignal:Fire()
+        Highlights:RemoveAll()
+    elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+        -- Highlight / Arrows
+        if Module.ActiveGame:get() ~= "" then
+            RightClickDown = GetNewSquare(Vector2.new(input.Position.X,input.Position.Y))
+        end
+    end
+end)
+
+-- Highlights / Arrows
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        if RightClickDown ~= "" then
+            local NewSqr = GetNewSquare(Vector2.new(input.Position.X,input.Position.Y))
+            if RightClickDown == NewSqr then
+                -- Highlight
+                local Color = "Red"
+                if UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or UserInputService:IsKeyDown(Enum.KeyCode.RightAlt) then
+                    Color = "Blue"
+                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
+                    Color = "Orange"
+                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or UserInputService:IsKeyDown(Enum.KeyCode.RightShift) then
+                    Color = "Green"
+                end
+                local render = Highlights.Rendering:get()
+                if render[NewSqr] == Color then
+                    -- Remove Highlight
+                    Highlights:RemoveHighlight(NewSqr)
+                else
+                    -- New Highlight
+                    render[NewSqr] = Color;
+                    Highlights.Rendering:set(render);
+                end
+            else
+                -- Arrow
+                print("ARROW",RightClickDown,"-->",NewSqr)
+            end
+        end
+        RightClickDown = ""
     end
 end)
 
