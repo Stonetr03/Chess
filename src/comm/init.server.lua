@@ -1,5 +1,6 @@
 -- Stonetr03 - Comm
 
+local Players = game:GetService("Players")
 local Knit = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"))
 local core = require(game:GetService("ServerScriptService"):WaitForChild("Core"))
 
@@ -9,6 +10,7 @@ local Chess = Knit.CreateService {
         OnChallenge = Knit.CreateSignal();
         GameStart = Knit.CreateSignal();
         UpdateGame = Knit.CreateSignal();
+        DrawUpdate = Knit.CreateSignal();
     }
 }
 
@@ -21,6 +23,12 @@ core.ChallengeSignal:Connect(function(plrs,value)
     else
         Chess.Client.OnChallenge:Fire(plrs[1],plrs[2],0)
         Chess.Client.OnChallenge:Fire(plrs[2],plrs[1],0)
+    end
+end)
+
+core.OtherSignal:Connect(function(t,Hash,v1)
+    if t == "Draw" then
+        Chess.Client.DrawUpdate:Fire(v1,Hash)
     end
 end)
 
@@ -83,6 +91,18 @@ function Chess.Client:MakeMove(p,Hash,Sqr,Move,Promote)
         return core:Playmove(Hash,p,Sqr,Move,Promote)
     end
     return false
+end
+
+-- Resign
+function Chess.Client:Resign(p,Hash)
+    if core.Games[Hash] then
+        core:Resign(Hash,p)
+    end
+end
+function Chess.Client:Draw(p,Hash,Value)
+    if core.Games[Hash] then
+        core:Draw(Hash,p,Value)
+    end
 end
 
 Knit.Start():andThen(function() end):catch(warn)

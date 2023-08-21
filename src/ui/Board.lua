@@ -13,6 +13,7 @@ local Clocks = require(script.Parent:WaitForChild("Clocks"))
 local Dots = require(script.Parent:WaitForChild("Dots"))
 local Highlights = require(script.Parent:WaitForChild("Highlights"))
 local Arrows = require(script.Parent:WaitForChild("Arrows"))
+local Annotations = require(script.Parent:WaitForChild("Annotation"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -29,6 +30,7 @@ local Module = {
 }
 
 local BoardRef = Value()
+Annotations.BoardRef = BoardRef;
 
 -- Settings
 local BoardWColor = Value(Color3.fromRGB(240, 217, 181))
@@ -288,6 +290,7 @@ function Module.Ui()
                     Dots = Dots.Ui();
                     Highlights = Highlights.Ui();
                     Arrows = Arrows.Ui();
+                    Annotations = Annotations.Ui();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()

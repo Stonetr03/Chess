@@ -13,7 +13,8 @@ local Module = {
     Games = {};
     Signals = {};
     Challenges = {};
-    ChallengeSignal = Signal.new()
+    ChallengeSignal = Signal.new();
+    OtherSignal = Signal.new();
 }
 
 function Module:NewGame(p1: Player,p2: Player)
@@ -50,11 +51,19 @@ end
 
 function Module:Draw(Hash: string,Player: Player,v: boolean)
     local Board = Module.Games[Hash]
-    if Board then
+    if Board and typeof(v) == "boolean" then
         if Board.White == Player then
+            if Board.Draw[1] == v then
+                return
+            end
             Board.Draw[1] = v
         elseif Board.Black == Player then
+            if Board.Draw[2] == v then
+                return
+            end
             Board.Draw[2] = v
+        else
+            return
         end
     end
     if v == false then
@@ -65,6 +74,10 @@ function Module:Draw(Hash: string,Player: Player,v: boolean)
         Board.Status = "draw;agreement"
         Board.PGN = Board.PGN .. " 1/2-1/2"
         Module.Signals[Hash]:Fire({},Board)
+    elseif Board.Draw[1] == true and Board.Draw[2] == false then
+        Module.OtherSignal:Fire("Draw",Hash,Board.Black)
+    elseif Board.Draw[1] == false and Board.Draw[2] == true then
+        Module.OtherSignal:Fire("Draw",Hash,Board.White)
     end
 end
 

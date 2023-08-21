@@ -16,6 +16,7 @@ local Clocks = require(script:WaitForChild("Clocks"))
 local Dots = require(script:WaitForChild("Dots"))
 local Highlights = require(script:WaitForChild("Highlights"))
 local Arrows = require(script:WaitForChild("Arrows"))
+local Annotations = require(script:WaitForChild("Annotation"))
 
 -- Values
 
@@ -51,12 +52,14 @@ Clocks:init()
 Dots.BoardFlipped = BoardFlipped;
 Highlights.BoardFlipped = BoardFlipped;
 Arrows.BoardFlipped = BoardFlipped;
+Annotations.BoardFlipped = BoardFlipped;
 
 -- Ui
 local ScreenGui = New "ScreenGui" {
     ResetOnSpawn = false;
     IgnoreGuiInset = true;
     Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui");
+    [Fusion.Ref] = Annotations.ScreenGuiRef;
     [Children] = {
         Background = New "Frame" {
             Size = UDim2.new(1,0,1,0);
@@ -156,6 +159,11 @@ Knit.Start({ServicePromises = false}):andThen(function()
             Highlights:SetMoveHighlight(Moves)
         end
     end)
+    Chess.DrawUpdate:Connect(function(Hash)
+        if ActiveGame:get() == Hash then
+            Annotations.Confirmation:set(3)
+        end
+    end);
 
     Menu.Challenge = function(p)
         Chess:Challenge(p)
@@ -179,6 +187,17 @@ Knit.Start({ServicePromises = false}):andThen(function()
     -- Make Move
     Board.MakeMove = function(Sqr,Move,Promote)
         return Chess:MakeMove(ActiveGame:get(),Sqr,Move,Promote)
+    end
+
+    Annotations.Resign = function()
+        if ActiveGame:get() ~= "" then
+            Chess:Resign(ActiveGame:get())
+        end
+    end
+    Annotations.Draw = function(v)
+        if ActiveGame:get() ~= "" then
+            Chess:Draw(ActiveGame:get(),v)
+        end
     end
 end):catch(warn)
 
