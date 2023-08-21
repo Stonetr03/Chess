@@ -12,6 +12,7 @@ local Letters = require(script.Parent:WaitForChild("Letters"))
 local Clocks = require(script.Parent:WaitForChild("Clocks"))
 local Dots = require(script.Parent:WaitForChild("Dots"))
 local Highlights = require(script.Parent:WaitForChild("Highlights"))
+local Arrows = require(script.Parent:WaitForChild("Arrows"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -286,6 +287,7 @@ function Module.Ui()
                     Clocks = Clocks.Ui();
                     Dots = Dots.Ui();
                     Highlights = Highlights.Ui();
+                    Arrows = Arrows.Ui();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()
@@ -546,10 +548,14 @@ UserInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         MouseButtonSignal:Fire()
         Highlights:RemoveAll()
+        Arrows.Rendering:set({})
     elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
         -- Highlight / Arrows
         if Module.ActiveGame:get() ~= "" then
-            RightClickDown = GetNewSquare(Vector2.new(input.Position.X,input.Position.Y))
+            local NewSqr = GetNewSquare(Vector2.new(input.Position.X,input.Position.Y))
+            if NewSqr then
+                RightClickDown = NewSqr
+            end
         end
     end
 end)
@@ -559,28 +565,56 @@ UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton2 then
         if RightClickDown ~= "" then
             local NewSqr = GetNewSquare(Vector2.new(input.Position.X,input.Position.Y))
-            if RightClickDown == NewSqr then
-                -- Highlight
-                local Color = "Red"
-                if UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or UserInputService:IsKeyDown(Enum.KeyCode.RightAlt) then
-                    Color = "Blue"
-                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
-                    Color = "Orange"
-                elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or UserInputService:IsKeyDown(Enum.KeyCode.RightShift) then
-                    Color = "Green"
-                end
-                local render = Highlights.Rendering:get()
-                if render[NewSqr] == Color then
-                    -- Remove Highlight
-                    Highlights:RemoveHighlight(NewSqr)
+            if NewSqr then
+                if RightClickDown == NewSqr then
+                    -- Highlight
+                    local Color = "Red"
+                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or UserInputService:IsKeyDown(Enum.KeyCode.RightAlt) then
+                        Color = "Blue"
+                    elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
+                        Color = "Orange"
+                    elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or UserInputService:IsKeyDown(Enum.KeyCode.RightShift) then
+                        Color = "Green"
+                    end
+                    local render = Highlights.Rendering:get()
+                    if render[NewSqr] == Color then
+                        -- Remove Highlight
+                        Highlights:RemoveHighlight(NewSqr)
+                    else
+                        -- New Highlight
+                        render[NewSqr] = Color;
+                        Highlights.Rendering:set(render);
+                    end
                 else
-                    -- New Highlight
-                    render[NewSqr] = Color;
-                    Highlights.Rendering:set(render);
+                    -- Arrow
+                    local Color = "Orange"
+                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftAlt) or UserInputService:IsKeyDown(Enum.KeyCode.RightAlt) then
+                        Color = "Blue"
+                    elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl) then
+                        Color = "Red"
+                    elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or UserInputService:IsKeyDown(Enum.KeyCode.RightShift) then
+                        Color = "Green"
+                    end
+                    local o = Arrows:GetArrow(RightClickDown,NewSqr)
+                    if o and o.C == Color then
+                        -- Remove Arrow
+                        Arrows:RemoveArrow(RightClickDown,NewSqr)
+                    elseif o then
+                        Arrows:RemoveArrow(RightClickDown,NewSqr)
+                        o.C = Color
+                        local render = Arrows.Rendering:get()
+                        table.insert(render,o)
+                        Arrows.Rendering:set(render);
+                    else
+                        local render = Arrows.Rendering:get()
+                        table.insert(render,{
+                            P1 = RightClickDown;
+                            P2 = NewSqr;
+                            C = Color;
+                        })
+                        Arrows.Rendering:set(render);
+                    end
                 end
-            else
-                -- Arrow
-                print("ARROW",RightClickDown,"-->",NewSqr)
             end
         end
         RightClickDown = ""

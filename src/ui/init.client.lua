@@ -15,6 +15,7 @@ local Letters = require(script:WaitForChild("Letters"))
 local Clocks = require(script:WaitForChild("Clocks"))
 local Dots = require(script:WaitForChild("Dots"))
 local Highlights = require(script:WaitForChild("Highlights"))
+local Arrows = require(script:WaitForChild("Arrows"))
 
 -- Values
 
@@ -49,6 +50,7 @@ Clocks:init()
 
 Dots.BoardFlipped = BoardFlipped;
 Highlights.BoardFlipped = BoardFlipped;
+Arrows.BoardFlipped = BoardFlipped;
 
 -- Ui
 local ScreenGui = New "ScreenGui" {
