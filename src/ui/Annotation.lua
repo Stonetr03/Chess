@@ -5,11 +5,13 @@ local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packag
 local New = Fusion.New
 local Children = Fusion.Children
 local Computed = Fusion.Computed
+local Observe = Fusion.Observer
 local Value = Fusion.Value
 local Event = Fusion.OnEvent
 
 local Module = {
     BoardFlipped = nil;
+    ActiveBoard = nil;
     ScreenGuiRef = Value();
     BoardRef = nil;
     Confirmation = Value(0); -- 0:Not Visible, 1:Resign, 2:Draw, 3:Draw Offer
@@ -17,6 +19,51 @@ local Module = {
     Resign = nil;
     Draw = nil;
 }
+
+local rendering = Value({})
+local scrollSize = Value()
+
+function Module:init()
+    Observe(Module.ActiveBoard):onChange(function()
+        local board = Module.ActiveBoard:get()
+        if board.PGN then
+            local toRenderPGN = {}
+            local temp = nil--{
+                --n = nil;
+                --w = nil;
+                --b = nil;
+            --}
+            local split = string.split(board.PGN," ");
+            for _,o in pairs(split) do
+                if o == "1/2-1/2" or o == "0-1" or o == "1-0" then
+                    o = ""
+                end
+                if string.sub(o,string.len(o),string.len(o)) == "." and o ~= "..." then
+                    -- Save Old
+                    if temp and temp.n and temp.w then
+                        table.insert(toRenderPGN,temp)
+                    end
+                    -- New
+                    temp = {n = string.sub(o,1,string.len(o) - 1), w = nil, b = nil;};
+                else
+                    -- Move
+                    if temp and temp.w and temp.b == nil then
+                        -- black
+                        temp.b = o;
+                    elseif temp and temp.w == nil then
+                        -- white
+                        temp.w = o;
+                    end
+                end
+            end
+            if temp and temp.n and temp.w then
+                table.insert(toRenderPGN,temp)
+            end
+            -- Save
+            rendering:set(toRenderPGN)
+        end
+    end)
+end
 
 function Module.Ui()
     return New "Frame" {
@@ -96,6 +143,7 @@ function Module.Ui()
                 BackgroundColor3 = Color3.fromRGB(46,46,46);
                 Position = UDim2.new(0.5,0,0.9,0);
                 Size = UDim2.new(0.95,0,0.2,0);
+                ZIndex = 20;
                 Visible = Computed(function()
                     if Module.Confirmation:get() == 0 then
                         return false
@@ -185,6 +233,66 @@ function Module.Ui()
                     }
                 }
             };
+
+
+            -- Annotation
+            New "ScrollingFrame" {
+                BackgroundColor3 = Color3.fromRGB(66,66,66);
+                BottomImage = "";
+                CanvasSize = Computed(function()
+                    local v = scrollSize:get()
+                    if v and v.Y then
+                        return UDim2.new(0,0,0,scrollSize:get().Y)
+                    end
+                    return UDim2.new(0,0,0,0);
+                end);
+                ScrollBarThickness = 5;
+                ScrollingDirection = Enum.ScrollingDirection.Y;
+                Size = UDim2.new(1,0,0.92,0);
+                TopImage = "";
+
+                [Children] = {
+                    New "UIListLayout" {
+                        SortOrder = Enum.SortOrder.LayoutOrder;
+                        [Fusion.Out "AbsoluteContentSize"] = scrollSize
+                    };
+                    Fusion.ForPairs(rendering,function(i,o)
+                        return i, New "Frame" {
+                            BackgroundTransparency = 1;
+                            Size = UDim2.new(1,0,0,30);
+                            LayoutOrder = tonumber(o.n);
+                            [Children] = {
+                                New "TextLabel" {
+                                    BackgroundColor3 = Color3.fromRGB(57,57,57);
+                                    Font = Enum.Font.SourceSansBold;
+                                    Size = UDim2.new(0,35,1,0);
+                                    Text = tostring(o.n);
+                                    TextColor3 = Color3.new(1,1,1);
+                                    TextSize = 25;
+                                };
+                                New "TextLabel" {
+                                    BackgroundTransparency = 1;
+                                    Font = Enum.Font.SourceSans;
+                                    Position = UDim2.new(0,35,0,0);
+                                    Size = UDim2.new(0.5,-17,1,0);
+                                    Text = o.w or "";
+                                    TextColor3 = Color3.new(1,1,1);
+                                    TextSize = 25;
+                                };
+                                New "TextLabel" {
+                                    BackgroundTransparency = 1;
+                                    Font = Enum.Font.SourceSans;
+                                    Position = UDim2.new(0.5,17,0,0);
+                                    Size = UDim2.new(0.5,-17,1,0);
+                                    Text = o.b or "";
+                                    TextColor3 = Color3.new(1,1,1);
+                                    TextSize = 25;
+                                };
+                            }
+                        }
+                    end,Fusion.cleanup)
+                }
+            }
         }
     }
 end

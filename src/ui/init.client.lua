@@ -52,7 +52,10 @@ Clocks:init()
 Dots.BoardFlipped = BoardFlipped;
 Highlights.BoardFlipped = BoardFlipped;
 Arrows.BoardFlipped = BoardFlipped;
+
 Annotations.BoardFlipped = BoardFlipped;
+Annotations.ActiveBoard = ActiveBoard;
+Annotations:init()
 
 -- Ui
 local ScreenGui = New "ScreenGui" {
