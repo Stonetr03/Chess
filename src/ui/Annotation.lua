@@ -242,14 +242,22 @@ function Module.Ui()
                 CanvasSize = Computed(function()
                     local v = scrollSize:get()
                     if v and v.Y then
-                        return UDim2.new(0,0,0,scrollSize:get().Y)
+                        return UDim2.new(0,0,0,v.Y)
                     end
                     return UDim2.new(0,0,0,0);
+                end);
+                CanvasPosition = Computed(function()
+                    local v = scrollSize:get()
+                    if v and v.Y then
+                        return Vector2.new(0,v.Y)
+                    end
+                    return Vector2.new(0,0)
                 end);
                 ScrollBarThickness = 5;
                 ScrollingDirection = Enum.ScrollingDirection.Y;
                 Size = UDim2.new(1,0,0.92,0);
                 TopImage = "";
+                ScrollBarImageColor3 = Color3.new(1,1,1);
 
                 [Children] = {
                     New "UIListLayout" {
