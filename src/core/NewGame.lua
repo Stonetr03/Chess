@@ -89,7 +89,7 @@ function Module:New(Hash,FEN,p1,p2)
     -- PGN
     local PGN = ""
     if Move == "b" then
-        PGN = (tonumber(FENSplit[6]) or tostring(1)) .. "..."
+        PGN = (tonumber(FENSplit[6]) or tostring(1)) .. ". ..."
     end
     return {
         Board = Board;
