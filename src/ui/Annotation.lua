@@ -22,6 +22,7 @@ local Module = {
 
 local rendering = Value({})
 local scrollSize = Value()
+local DownloadVis = Value(false)
 
 function Module:init()
     Observe(Module.ActiveBoard):onChange(function()
@@ -67,6 +68,7 @@ end
 
 function Module.Ui()
     return New "Frame" {
+        BackgroundColor3 = Color3.fromRGB(46,46,46);
         AnchorPoint = Vector2.new(0,0.5);
         Position = UDim2.new(1,5,0.5,0);
         Size = Computed(function()
@@ -90,6 +92,12 @@ function Module.Ui()
                 Text = "Draw";
                 TextColor3 = Color3.fromRGB(197,197,197);
                 TextScaled = true;
+                Visible = Computed(function()
+                    if Module.ActiveBoard:get().Status ~= "" then
+                        return false
+                    end
+                    return true
+                end);
                 [Event "MouseButton1Up"] = function()
                     if Module.Confirmation:get() == 2 then
                         Module.Confirmation:set(0)
@@ -111,6 +119,12 @@ function Module.Ui()
                 Text = "Resign";
                 TextColor3 = Color3.fromRGB(197,197,197);
                 TextScaled = true;
+                Visible = Computed(function()
+                    if Module.ActiveBoard:get().Status ~= "" then
+                        return false
+                    end
+                    return true
+                end);
                 [Event "MouseButton1Up"] = function()
                     if Module.Confirmation:get() == 1 then
                         Module.Confirmation:set(0)
@@ -300,6 +314,77 @@ function Module.Ui()
                         }
                     end,Fusion.cleanup)
                 }
+            };
+
+            -- Move Download
+            New "ImageButton" {
+                AnchorPoint = Vector2.new(0,1);
+                BackgroundColor3 = Color3.fromRGB(46,46,46);
+                Image = "rbxassetid://11295288311";
+                ImageColor3 = Color3.fromRGB(197,197,197);
+                Position = UDim2.new(0,0,1,0);
+                ScaleType = Enum.ScaleType.Fit;
+                Size = UDim2.new(0.12,0,0.08,0);
+                Visible = Computed(function()
+                    if Module.ActiveBoard:get().Status ~= "" then
+                        return true
+                    end
+                    return false
+                end);
+                [Event "MouseButton1Up"] = function()
+                    DownloadVis:set(not DownloadVis:get())
+                end;
+            };
+            New "TextBox" {
+                Visible = Computed(function()
+                    if DownloadVis:get() == true and Module.ActiveBoard:get().Status ~= "" then
+                        return true
+                    end
+                    return false
+                end);
+                AnchorPoint = Vector2.new(0.5,0.5);
+                BackgroundColor3 = Color3.fromRGB(46,46,46);
+                ClearTextOnFocus = false;
+                Font = Enum.Font.SourceSans;
+                MultiLine = true;
+                Position = UDim2.new(0.5,0,0.5,0);
+                Size = UDim2.new(0.85,0,0.75,0);
+                Text = Computed(function()
+                    local board = Module.ActiveBoard:get()
+                    local txt = ""
+                    if board and board.PGN and board.White and board.Black then
+                        local split = string.split(board.PGN," ");
+                        txt = '[Event "Live Chess"]\n[Site "Roblox Chess"]\n[Date "' .. os.date("%Y.%m.%d") .. '"]\n[White "' .. tostring(board.White) .. '"]\n[Black "' .. tostring(board.Black) .. '"]\n[Result "' .. split[#split] .. '"]\n\n' .. board.PGN;
+                    end
+                    return txt
+                end);
+                TextColor3 = Color3.new(1,1,1);
+                TextEditable = false;
+                TextSize = 14;
+                TextWrapped = true;
+                TextXAlignment = Enum.TextXAlignment.Left;
+                TextYAlignment = Enum.TextYAlignment.Top;
+                [Children] = {
+                    New "UICorner" {
+                        CornerRadius = UDim.new(0.05,0);
+                    };
+                    New "UIPadding" {
+                        PaddingLeft = UDim.new(0,3);
+                        PaddingRight = UDim.new(0,3);
+                        PaddingTop = UDim.new(0,2);
+                    };
+                    New "ImageButton" {
+                        AnchorPoint = Vector2.new(1,0);
+                        BackgroundTransparency = 1;
+                        Image = "rbxassetid://11293981586";
+                        Position = UDim2.new(1,0,0,0);
+                        Size = UDim2.new(0.1,0,0.1,0);
+                        SizeConstraint = Enum.SizeConstraint.RelativeXX;
+                        [Event "MouseButton1Up"] = function()
+                            DownloadVis:set(false)
+                        end;
+                    }
+                };
             }
         }
     }

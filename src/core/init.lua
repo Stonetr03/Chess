@@ -51,7 +51,7 @@ end
 
 function Module:Draw(Hash: string,Player: Player,v: boolean)
     local Board = Module.Games[Hash]
-    if Board and typeof(v) == "boolean" then
+    if Board and typeof(v) == "boolean" and Board.Status == "" then
         if Board.White == Player then
             if Board.Draw[1] == v then
                 return
@@ -83,7 +83,7 @@ end
 
 function Module:Resign(Hash: string,Player: Player)
     local Board = Module.Games[Hash]
-    if Board then
+    if Board and Board.Status == "" then
         if Board.White == Player then
             Board.Turn = ""
             Board.Status = "resign;b"
