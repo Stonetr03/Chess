@@ -69,7 +69,7 @@ function PromoteUi()
         BorderMode = Enum.BorderMode.Outline;
         BorderSizePixel = 5;
         Size = UDim2.new(0.125,0,4 * 0.125,0);
-        ZIndex = 100;
+        ZIndex = 101;
         Visible = PromoteVis;
         Position = PromotePosition;
         AnchorPoint = Computed(function()
