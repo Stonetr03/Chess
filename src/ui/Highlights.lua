@@ -97,6 +97,9 @@ function Module:SetMoveHighlight(Moves)
             table.remove(Moves,table.find(Moves,o));
         end;
     end
+    if typeof(Moves) ~= "table" and Moves == nil or Moves[1] == nil or #Moves <= 0 then
+        return
+    end
     local split = string.split(Moves[1],"-")
     if #split == 2 then
         MoveHighlight1 = split[1]

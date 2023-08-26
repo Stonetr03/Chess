@@ -1,6 +1,7 @@
 -- Stonetr03
 
 local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Fusion"))
+local Close = require(script.Parent:WaitForChild("Close"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -322,7 +323,7 @@ function Module.Ui()
                 BackgroundColor3 = Color3.fromRGB(46,46,46);
                 Image = "rbxassetid://11295288311";
                 ImageColor3 = Color3.fromRGB(197,197,197);
-                Position = UDim2.new(0,0,1,0);
+                Position = UDim2.new(0.76,0,1,0);
                 ScaleType = Enum.ScaleType.Fit;
                 Size = UDim2.new(0.12,0,0.08,0);
                 Visible = Computed(function()
@@ -385,7 +386,9 @@ function Module.Ui()
                         end;
                     }
                 };
-            }
+            };
+
+            Close.AUi();
         }
     }
 end

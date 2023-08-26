@@ -17,6 +17,7 @@ local Dots = require(script:WaitForChild("Dots"))
 local Highlights = require(script:WaitForChild("Highlights"))
 local Arrows = require(script:WaitForChild("Arrows"))
 local Annotations = require(script:WaitForChild("Annotation"))
+local Close = require(script:WaitForChild("Close"))
 
 -- Values
 
@@ -57,6 +58,9 @@ Annotations.BoardFlipped = BoardFlipped;
 Annotations.ActiveBoard = ActiveBoard;
 Annotations:init()
 
+Close.ActiveBoard = ActiveBoard;
+Close.ActiveGame = ActiveGame;
+
 -- Ui
 local ScreenGui = New "ScreenGui" {
     ResetOnSpawn = false;
@@ -71,6 +75,7 @@ local ScreenGui = New "ScreenGui" {
         };
         Menu = Menu.Ui({ActiveGame = ActiveGame;});
         Board = Board.Ui();
+        Close = Close.Ui();
     };
 }
 
@@ -201,6 +206,23 @@ Knit.Start({ServicePromises = false}):andThen(function()
         if ActiveGame:get() ~= "" then
             Chess:Draw(ActiveGame:get(),v)
         end
+    end
+
+    -- Stop Listening
+    Close.Exit = function()
+        Chess:ListenHash(ActiveGame:get(),false)
+        ActiveGame:set("")
+        ActiveBoard:set({})
+        RenderingBoard:set({
+            [1] = "        ";
+            [2] = "        ";
+            [3] = "        ";
+            [4] = "        ";
+            [5] = "        ";
+            [6] = "        ";
+            [7] = "        ";
+            [8] = "        ";
+        })
     end
 end):catch(warn)
 

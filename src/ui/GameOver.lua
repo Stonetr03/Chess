@@ -29,7 +29,7 @@ local DrawColor = Color3.fromRGB(122,122,122)
 function Module:init()
     Fusion.Observer(Module.ActiveBoard):onChange(function()
         local Board = Module.ActiveBoard:get()
-        if Board.Status ~= "" then
+        if Board.Status and Board.Status ~= "" then
             local StatSplit = string.split(Board.Status,";")
             if StatSplit[1] == "checkmate" then
                 if Board.White == game.Players.LocalPlayer and StatSplit[2] == "w" then
