@@ -43,6 +43,9 @@ function Module:Playmove(Hash: string,Player: Player,Square: string,Move: string
             Module.Signals[Hash]:Fire(UpdateMoves,New)
             PrintBoard(Module.Games[Hash])
             print(UpdateMoves)
+            if New.Status ~= "" then
+                Module:Cleanup(Hash)
+            end
             return true
         end
     end
@@ -74,6 +77,7 @@ function Module:Draw(Hash: string,Player: Player,v: boolean)
         Board.Status = "draw;agreement"
         Board.PGN = Board.PGN .. " 1/2-1/2"
         Module.Signals[Hash]:Fire({},Board)
+        Module:Cleanup(Hash)
     elseif Board.Draw[1] == true and Board.Draw[2] == false then
         Module.OtherSignal:Fire("Draw",Hash,Board.Black)
     elseif Board.Draw[1] == false and Board.Draw[2] == true then
@@ -89,13 +93,32 @@ function Module:Resign(Hash: string,Player: Player)
             Board.Status = "resign;b"
             Board.PGN = Board.PGN .. " 0-1"
             Module.Signals[Hash]:Fire({},Board)
+            Module:Cleanup(Hash)
         elseif Board.Black == Player then
             Board.Turn = ""
             Board.Status = "resign;w"
             Board.PGN = Board.PGN .. " 1-0"
             Module.Signals[Hash]:Fire({},Board)
+            Module:Cleanup(Hash)
         end
     end
+end
+
+function Module:Cleanup(Hash: string) -- This needs to be integrated with all game ending functions
+    if Module.Games[Hash] then
+        if Module.Games[Hash].Status == "" then
+            local Board = Module.Games[Hash]
+            Board.Turn = ""
+            Board.Status = "draw;agreement"
+            Board.PGN = Board.PGN .. " 1/2-1/2"
+            Module.Signals[Hash]:Fire({},Board)
+        end
+        Module.Games[Hash] = nil;
+    end
+    if Module.Signals[Hash] then
+        Module.Signals[Hash]:Destroy();
+    end
+    Module.OtherSignal:Fire("Cleanup",Hash)
 end
 
 function PlayChallenge(p1,p2)

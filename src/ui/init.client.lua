@@ -137,18 +137,27 @@ Knit.Start({ServicePromises = false}):andThen(function()
         ManagePlayers()
     end)
     Chess.GameStart:Connect(function(hash,players,Newboard)
-        table.insert(Games,{hash,players})
-        ManagePlayers()
-        if players[1] == game.Players.LocalPlayer or players[2] == game.Players.LocalPlayer then
-            -- Spectate Game
-            LastStatus = ""
-            ActiveGame:set(hash)
-            ActiveBoard:set(Newboard)
-            RenderingBoard:set(Newboard.Board)
-            if Newboard.Black == game.Players.LocalPlayer then
-                BoardFlipped:set(true)
-            else
-                BoardFlipped:set(false)
+        if players == "Cleanup" then
+            for _,o in pairs(Games) do
+                if o[1] == hash then
+                    table.remove(Games,table.find(Games,o))
+                end
+            end
+            ManagePlayers()
+        else
+            table.insert(Games,{hash,players})
+            ManagePlayers()
+            if players[1] == game.Players.LocalPlayer or players[2] == game.Players.LocalPlayer then
+                -- Spectate Game
+                LastStatus = ""
+                ActiveGame:set(hash)
+                ActiveBoard:set(Newboard)
+                RenderingBoard:set(Newboard.Board)
+                if Newboard.Black == game.Players.LocalPlayer then
+                    BoardFlipped:set(true)
+                else
+                    BoardFlipped:set(false)
+                end
             end
         end
     end)

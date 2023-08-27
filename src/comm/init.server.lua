@@ -29,6 +29,12 @@ end)
 core.OtherSignal:Connect(function(t,Hash,v1)
     if t == "Draw" then
         Chess.Client.DrawUpdate:Fire(v1,Hash)
+    elseif t == "Cleanup" then
+        -- Cleanup
+        if GameListeners[Hash] then
+            GameListeners[Hash] = nil;
+            Chess.Client.GameStart:FireAll(Hash,"Cleanup")
+        end
     end
 end)
 
