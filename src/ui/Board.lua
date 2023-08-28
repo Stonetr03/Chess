@@ -14,6 +14,7 @@ local Dots = require(script.Parent:WaitForChild("Dots"))
 local Highlights = require(script.Parent:WaitForChild("Highlights"))
 local Arrows = require(script.Parent:WaitForChild("Arrows"))
 local Annotations = require(script.Parent:WaitForChild("Annotation"))
+local Resize = require(script.Parent:WaitForChild("Resize"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -274,10 +275,10 @@ function Module.Ui()
         Size = UDim2.new(1,0,1,0);
         [Children] = {
             Board = New "Frame" {
-                AnchorPoint = Vector2.new(0.5,0.5);
+                AnchorPoint = Vector2.new(1,0);
                 BackgroundColor3 = BoardBColor;
-                Position = UDim2.new(0.5,0,0.5,0);
-                Size = UDim2.new(0.75,0,0.75,0);
+                Position = UDim2.new(0.75,0,0.12,0);
+                Size = Resize.BoardSize;
                 SizeConstraint = Enum.SizeConstraint.RelativeYY;
                 ZIndex = 5;
                 [Fusion.Ref] = BoardRef;
@@ -542,7 +543,8 @@ function Module.Ui()
                         return Ui
                     end,Fusion.cleanup)
                 }
-            }
+            };
+            Resize.Ui();
         }
     }
 end
