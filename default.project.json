@@ -5,7 +5,11 @@
 
     "ReplicatedStorage": {
       "Packages": {
-        "$path": "Packages"
+        "$path": "Packages",
+
+        "_external": {
+          "$path": "external"
+        }
       }
     },
 

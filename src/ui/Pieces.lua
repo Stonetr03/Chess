@@ -1,7 +1,13 @@
 -- Stonetr03 - Pieces
 
+local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Fusion"))
+
+local Value = Fusion.Value
+
 return {
-    ImageId = "rbxassetid://6556269075";
+    ImageId = Value("rbxassetid://6556269075");
+    BoardWColor = Value(Color3.fromRGB(240, 217, 181));
+    BoardBColor = Value(Color3.fromRGB(181, 136, 99));
 
     K = Vector2.new(0,0); -- White King
     Q = Vector2.new(170,0); -- White Queen

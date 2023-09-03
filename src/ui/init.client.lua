@@ -1,6 +1,7 @@
 -- Stonetr03
 
 local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Fusion"))
+local Picker = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_external"):WaitForChild("Picker"))
 local Knit = require(game.ReplicatedStorage.Packages:WaitForChild("Knit"))
 local tab = require(script:WaitForChild("tab"))
 
@@ -18,6 +19,7 @@ local Highlights = require(script:WaitForChild("Highlights"))
 local Arrows = require(script:WaitForChild("Arrows"))
 local Annotations = require(script:WaitForChild("Annotation"))
 local Close = require(script:WaitForChild("Close"))
+local Settings = require(script:WaitForChild("Settings"));
 
 -- Values
 
@@ -76,8 +78,19 @@ local ScreenGui = New "ScreenGui" {
         Menu = Menu.Ui({ActiveGame = ActiveGame;});
         Board = Board.Ui();
         Close = Close.Ui();
+        Settings.Ui();
     };
 }
+
+-- Color Picker
+local ColorPick = Picker.New(ScreenGui,game.Players.LocalPlayer:GetMouse(),{
+    Draggable = false;
+    Position = UDim2.new(0.5,0,0.5,0);
+})
+ColorPick.Instance.Parent.ZIndex = 1001;
+ColorPick.Instance.Parent.Visible = false;
+Settings.Picker = ColorPick
+Settings:Init()
 
 local Challenges = {}
 local Games = {}

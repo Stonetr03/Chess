@@ -15,6 +15,7 @@ local Highlights = require(script.Parent:WaitForChild("Highlights"))
 local Arrows = require(script.Parent:WaitForChild("Arrows"))
 local Annotations = require(script.Parent:WaitForChild("Annotation"))
 local Resize = require(script.Parent:WaitForChild("Resize"))
+local Settings = require(script.Parent:WaitForChild("Settings"))
 
 local New = Fusion.New
 local Children = Fusion.Children
@@ -32,10 +33,6 @@ local Module = {
 
 local BoardRef = Value()
 Annotations.BoardRef = BoardRef;
-
--- Settings
-local BoardWColor = Value(Color3.fromRGB(240, 217, 181))
-local BoardBColor = Value(Color3.fromRGB(181, 136, 99))
 
 local PieceColors = {
     w = {"R","N","B","Q","K","P"};
@@ -168,7 +165,7 @@ function RenderBoardBG()
     local color = true
     for i = 0,7,1 do
         for o = 0,7,1 do
-            local Bgcolor = BoardWColor
+            local Bgcolor = Pieces.BoardWColor
             if color == true then
                 local Ui = New "Frame" {
                     BackgroundColor3 = Bgcolor;
@@ -276,7 +273,7 @@ function Module.Ui()
         [Children] = {
             Board = New "Frame" {
                 AnchorPoint = Vector2.new(1,0);
-                BackgroundColor3 = BoardBColor;
+                BackgroundColor3 = Pieces.BoardBColor;
                 Position = UDim2.new(0.75,0,0.12,0);
                 Size = Resize.BoardSize;
                 SizeConstraint = Enum.SizeConstraint.RelativeYY;
@@ -292,6 +289,7 @@ function Module.Ui()
                     Highlights = Highlights.Ui();
                     Arrows = Arrows.Ui();
                     Annotations = Annotations.Ui();
+                    Settings.Button();
                     Pieces = Computed(function()
                         local NewPieces = {}
                         local board = Module.RenderingBoard:get()
