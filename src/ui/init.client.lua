@@ -246,6 +246,15 @@ Knit.Start({ServicePromises = false}):andThen(function()
             [8] = "        ";
         })
     end
+
+    -- Settings
+    Settings.Get = function()
+        return Chess:GetSettings();
+    end;
+    Settings.Set = function(k,v)
+        Chess:SetSetting(k,v)
+    end
+    Settings:Initset()
 end):catch(warn)
 
 game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable

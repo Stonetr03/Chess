@@ -12,6 +12,8 @@ local Value = Fusion.Value
 local Module = {
     Visible = Value(false);
     Picker = nil;
+    Get = nil;
+    Set = nil;
 }
 
 local CustomB = Value(Color3.fromRGB(181,136,99));
@@ -58,6 +60,10 @@ function Button(Pos,WColor,BColor)
         [Event "MouseButton1Up"] = function()
             Pieces.BoardWColor:set(WColor);
             Pieces.BoardBColor:set(BColor);
+            if typeof(Module.Set) == "function" then
+                Module.Set("WColor",WColor:ToHex())
+                Module.Set("BColor",BColor:ToHex())
+            end
         end;
     }
 end
@@ -218,6 +224,9 @@ function Module.Ui()
                                         task.wait()
                                         Pieces.ImageId:set(o)
                                         DropdownVis:set(false)
+                                        if typeof(Module.Set) == "function" then
+                                            Module.Set("Piece",i)
+                                        end
                                     end;
                                 }
                             end,Fusion.cleanup)
@@ -324,9 +333,15 @@ function Module:Init()
         if ActivePicker == true then
             Pieces.BoardBColor:set(Color)
             CustomB:set(Color)
+            if typeof(Module.Set) == "function" then
+                Module.Set("BColor",Color:ToHex())
+            end
         else
             Pieces.BoardWColor:set(Color)
             CustomW:set(Color)
+            if typeof(Module.Set) == "function" then
+                Module.Set("WColor",Color:ToHex())
+            end
         end
     end);
     Module.Picker.Updated:Connect(function(Color: Color3)
@@ -345,6 +360,33 @@ function Module:Init()
             CustomW:set(Pieces.BoardWColor:get())
         end
     end);
+end
+
+function checkHex(str)
+    -- Check if the string starts with "#" and is exactly 7 characters long
+    if type(str) == "string" and str:match("^%x%x%x%x%x%x$") then
+        return true
+    else
+        return false
+    end
+end
+function Module:Initset()
+    local CurrentSettings = Module.Get();
+    if CurrentSettings.Piece then
+        if CustomPieces[CurrentSettings.Piece] then
+            Pieces.ImageId:set(CustomPieces[CurrentSettings.Piece])
+        end
+    end
+    if CurrentSettings.WColor and checkHex(CurrentSettings.WColor) == true then
+        local NewColor = Color3.fromHex(CurrentSettings.WColor);
+        CustomW:set(NewColor);
+        Pieces.BoardWColor:set(NewColor)
+    end
+    if CurrentSettings.BColor and checkHex(CurrentSettings.BColor) == true then
+        local NewColor = Color3.fromHex(CurrentSettings.BColor)
+        CustomB:set(NewColor);
+        Pieces.BoardBColor:set(NewColor)
+    end
 end
 
 return Module

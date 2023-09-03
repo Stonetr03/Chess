@@ -1,8 +1,8 @@
 -- Stonetr03 - Comm
 
-local Players = game:GetService("Players")
 local Knit = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"))
 local core = require(game:GetService("ServerScriptService"):WaitForChild("Core"))
+local Settings = require(script:WaitForChild("Settings"))
 
 local Chess = Knit.CreateService {
     Name = "Chess";
@@ -108,6 +108,71 @@ end
 function Chess.Client:Draw(p,Hash,Value)
     if core.Games[Hash] then
         core:Draw(Hash,p,Value)
+    end
+end
+
+-- Settings
+game.Players.PlayerAdded:Connect(function(p)
+    Settings:GetDataStore(p.UserId)
+end)
+game.Players.PlayerRemoving:Connect(function(p)
+    Settings:ExitDataStore(p.UserId)
+end)
+function Chess.Client:GetSettings(p)
+    if Settings.Data[p.UserId] then
+        return Settings.Data[p.UserId];
+    end
+    return nil;
+end
+
+local ValidSettings = {
+    [1] = "standard";
+    [2] = "caliente";
+    [3] = "california";
+    [4] = "cardinal";
+    [5] = "cburnett";
+    [6] = "disguised";
+    [7] = "fresca";
+    [8] = "gioco";
+    [9] = "kiwen-suwi";
+    [10] = "kosal";
+    [11] = "letter";
+    [12] = "libra";
+    [13] = "maestro";
+    [14] = "merida";
+    [15] = "mono";
+    [16] = "mpchess";
+    [17] = "pirouetti";
+    [18] = "pixel";
+    [19] = "shapes";
+    [20] = "staunty";
+    [21] = "tatiana";
+}
+function checkHex(str)
+    -- Check if the string starts with "#" and is exactly 7 characters long
+    if type(str) == "string" and str:match("^%x%x%x%x%x%x$") then
+        return true
+    else
+        return false
+    end
+end
+
+function Chess.Client:SetSetting(p,Key,Value)
+    if typeof(Key) ~= "string" or typeof(Value) ~= "string" then
+        return
+    end
+    if Settings.Data[p.UserId] then
+        if Key == "Piece" then
+            if table.find(ValidSettings,Value) then
+                -- Update Data
+                Settings:UpdateData(p.UserId,Key,Value)
+            end
+        elseif Key == "WColor" or Key == "BColor" then
+            if checkHex(Value) == true then
+                -- Update Data
+                Settings:UpdateData(p.UserId,Key,Value)
+            end
+        end
     end
 end
 
