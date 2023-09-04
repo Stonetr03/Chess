@@ -277,9 +277,15 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
     if Board.Turn == "w" then
         Board.Turn = "b"
         Board.Clocks.w.bonus = 0;
+        if Board.Clocks.bonus ~= 0 then
+            Board.Clocks.w.clock += Board.Clocks.bonus
+        end
     else
         Board.Turn = "w"
         Board.Clocks.b.bonus = 0;
+        if Board.Clocks.bonus ~= 0 then
+            Board.Clocks.b.clock += Board.Clocks.bonus
+        end
     end
     Board.Last = Move;
 

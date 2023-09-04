@@ -17,7 +17,7 @@ local InvertTab = {
 
 local Pieces = {"r","n","b","q","k","p","R","N","B","Q","K","P"}
 
-function Module:New(Hash,FEN,p1,p2,Seconds) -- Time in Seconds
+function Module:New(Hash,FEN,p1,p2,Seconds: number, BonusTime: number) -- Time in Seconds
     if FEN == nil then
         FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -- Board turn Castle enPassantTarget(or -) 
     end
@@ -93,6 +93,13 @@ function Module:New(Hash,FEN,p1,p2,Seconds) -- Time in Seconds
     if Move == "b" then
         PGN = (tonumber(FENSplit[6]) or tostring(1)) .. ". ..."
     end
+    -- Clocks
+    if typeof(Seconds) ~= "number" or Seconds < 0 then
+        Seconds = 120*60
+    end
+    if typeof(BonusTime) ~= "number" then
+        BonusTime = 0;
+    end
     Clocks:RunClock(Hash)
     return {
         Board = Board;
@@ -116,7 +123,8 @@ function Module:New(Hash,FEN,p1,p2,Seconds) -- Time in Seconds
             b = {
                 bonus = 5;
                 clock = Seconds
-            }
+            };
+            bonus = BonusTime
         }
     }
 end
