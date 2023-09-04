@@ -1,5 +1,7 @@
 -- Stonetr03 - Makes new games
 
+local Clocks = require(script.Parent:WaitForChild("Clock"))
+
 local Module = {}
 
 local InvertTab = {
@@ -15,7 +17,7 @@ local InvertTab = {
 
 local Pieces = {"r","n","b","q","k","p","R","N","B","Q","K","P"}
 
-function Module:New(Hash,FEN,p1,p2)
+function Module:New(Hash,FEN,p1,p2,Seconds) -- Time in Seconds
     if FEN == nil then
         FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -- Board turn Castle enPassantTarget(or -) 
     end
@@ -91,6 +93,7 @@ function Module:New(Hash,FEN,p1,p2)
     if Move == "b" then
         PGN = (tonumber(FENSplit[6]) or tostring(1)) .. ". ..."
     end
+    Clocks:RunClock(Hash)
     return {
         Board = Board;
         Turn = Move;
@@ -105,6 +108,16 @@ function Module:New(Hash,FEN,p1,p2)
         Threefold = {};
         Draw = {false,false};
         Move50 = 0;
+        Clocks = {
+            w = {
+                bonus = 5;
+                clock = Seconds
+            };
+            b = {
+                bonus = 5;
+                clock = Seconds
+            }
+        }
     }
 end
 

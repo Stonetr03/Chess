@@ -27,6 +27,62 @@ local BMissing = Value({})
 
 local SizeRef = Value()
 
+-- Clocks
+local WClock = Value(0)
+local BClock = Value(0)
+local Count = false
+local Turn = false
+local WBonus = 0
+local BBonus = 0
+task.spawn(function()
+    while task.wait(0.1) do
+        if Count == true then
+            if Turn == "w" then
+                if WBonus > 0 then
+                    WBonus -= 0.1
+                else
+                    -- Time
+                    WClock:set(WClock:get() - 0.1)
+                end
+            else
+                if BBonus > 0 then
+                    BBonus -= 0.1
+                else
+                    -- Time
+                    BClock:set(BClock:get() - 0.1)
+                end
+            end
+        end
+    end
+end)
+
+-- Converts seconds to HH:MM:SS or MM:SS format - includes miliseconds when under 10 seconds.
+function formatTime(seconds)
+    if seconds < 0 then
+        seconds = 0;
+    end
+    local hours = math.floor(seconds / 3600)
+    local remainingSeconds = seconds % 3600
+    local minutes = math.floor(remainingSeconds / 60)
+    remainingSeconds = remainingSeconds % 60
+
+    local milliseconds = math.floor((remainingSeconds - math.floor(remainingSeconds)) * 10)
+
+    if remainingSeconds < 10 and hours == 0 and minutes == 0 then
+        if hours > 0 then
+            return string.format("%d:%02d:%02d.%.1d", hours, minutes, math.floor(remainingSeconds), milliseconds)
+        else
+            return string.format("%d:%02d.%.1d", minutes, math.floor(remainingSeconds), milliseconds)
+        end
+    else
+        if hours > 0 then
+            return string.format("%d:%02d:%02d", hours, minutes, remainingSeconds)
+        else
+            return string.format("%d:%02d", minutes, remainingSeconds)
+        end
+    end
+end
+
 function Module:init()
     Observer(Module.ActiveBoard):onChange(function()
         if Module.ActiveBoard:get().White and Module.ActiveBoard:get().White.Name ~= WName:get() then
@@ -44,6 +100,20 @@ function Module:init()
             BDiff:set(Diff.b.diff)
             WMissing:set(Diff.w.missing)
             BMissing:set(Diff.b.missing)
+            local Board = Module.ActiveBoard:get()
+            if Board.Clocks and Board.Clocks.w and Board.Clocks.b and Board.Clocks.w.clock and Board.Clocks.b.clock and Board.Clocks.w.bonus and Board.Clocks.b.bonus then
+                WClock:set(Board.Clocks.w.clock)
+                BClock:set(Board.Clocks.b.clock)
+                WBonus = Board.Clocks.w.bonus
+                BBonus = Board.Clocks.b.bonus
+                Turn = Board.Turn
+                if Board.Status and Board.Status == "" then
+                    -- Run Clocks
+                    Count = true
+                else
+                    Count = false
+                end
+            end
         end
     end)
 end
@@ -191,7 +261,12 @@ function Module.Ui()
                     Font = Enum.Font.SourceSansBold;
                     Position = UDim2.new(1,0,0.5,0);
                     Size = UDim2.new(0.25,0,0.8,0);
-                    Text = "0:00";
+                    Text = Computed(function()
+                        if Module.BoardFlipped:get() == false then
+                            return formatTime(WClock:get())
+                        end
+                        return formatTime(BClock:get())
+                    end);
                     TextColor3 = Computed(function()
                         if Module.BoardFlipped:get() == false then
                             return Color3.fromRGB(26,26,26);
@@ -336,7 +411,12 @@ function Module.Ui()
                     Font = Enum.Font.SourceSansBold;
                     Position = UDim2.new(1,0,0.5,0);
                     Size = UDim2.new(0.25,0,0.8,0);
-                    Text = "0:00";
+                    Text = Computed(function()
+                        if Module.BoardFlipped:get() == true then
+                            return formatTime(WClock:get())
+                        end
+                        return formatTime(BClock:get())
+                    end);
                     TextColor3 = Computed(function()
                         if Module.BoardFlipped:get() == true then
                             return Color3.fromRGB(26,26,26);

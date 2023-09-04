@@ -6,6 +6,7 @@ local HttpService = game:GetService("HttpService")
 local Moves = require(script:WaitForChild("Moves"))
 local PlayMove = require(script:WaitForChild("PlayMove"))
 local Signal = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Signal"))
+local Clocks = require(script:WaitForChild("Clock"))
 
 local legalPromote = {"r","n","b","q","","nil"}
 
@@ -19,7 +20,7 @@ local Module = {
 
 function Module:NewGame(p1: Player,p2: Player)
     local Hash = HttpService:GenerateGUID(true)
-    Module.Games[Hash] = NewGame:New(Hash,nil,p1,p2)
+    Module.Games[Hash] = NewGame:New(Hash,nil,p1,p2,10 * 60)
     PrintBoard(Module.Games[Hash])
     local GameSignal = Signal.new()
     Module.Signals[Hash] = GameSignal;
@@ -118,6 +119,7 @@ function Module:Cleanup(Hash: string) -- This needs to be integrated with all ga
     if Module.Signals[Hash] then
         Module.Signals[Hash]:Destroy();
     end
+    Clocks:StopClock(Hash)
     Module.OtherSignal:Fire("Cleanup",Hash)
 end
 
@@ -184,5 +186,47 @@ game.Players.PlayerRemoving:Connect(function(p)
         end
     end
 end)
+
+-- Clocks
+Clocks.Games = Module.Games
+Clocks.GameOver = function(Hash,Color)
+    local Board = Module.Games[Hash]
+    if Color == "w" then
+        local Pieces = Moves:GetPieces(Board,"b")
+        if #Pieces == 1 then
+            -- Draw
+            Board.Turn = ""
+            Board.Status = "draw;timeout"
+            Board.PGN = Board.PGN .. " 1/2-1/2"
+            Module.Signals[Hash]:Fire({},Board)
+            Module:Cleanup(Hash)
+        else
+            -- Loose
+            Board.Turn = ""
+            Board.Status = "timeout;b"
+            Board.PGN = Board.PGN .. " 0-1"
+            Module.Signals[Hash]:Fire({},Board)
+            Module:Cleanup(Hash)
+        end
+
+    else
+        local Pieces = Moves:GetPieces(Board,"w")
+        if #Pieces == 1 then
+            -- Draw
+            Board.Turn = ""
+            Board.Status = "draw;timeout"
+            Board.PGN = Board.PGN .. " 1/2-1/2"
+            Module.Signals[Hash]:Fire({},Board)
+            Module:Cleanup(Hash)
+        else
+            -- Loose
+            Board.Turn = ""
+            Board.Status = "timeout;w"
+            Board.PGN = Board.PGN .. " 1-0"
+            Module.Signals[Hash]:Fire({},Board)
+            Module:Cleanup(Hash)
+        end
+    end
+end;
 
 return Module
