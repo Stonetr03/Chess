@@ -10,6 +10,7 @@ local Event = Fusion.OnEvent
 
 local Module = {
     Challenge = nil;
+    Spectate = nil;
 }
 
 local CurrentGamesList = Value({})
@@ -89,6 +90,9 @@ function Module.Ui(props)
                             PaddingRight = UDim.new(0.02,0);
                         };
                     };
+                    [Event "MouseButton1Up"] = function()
+                        Module.Spectate(o[1])
+                    end
                 }
             end,Fusion.cleanup)});
             Module.List({Position = UDim2.new(0.4,0,0.15,0),Children = Fusion.ForPairs(PlayersList,function(i,o)

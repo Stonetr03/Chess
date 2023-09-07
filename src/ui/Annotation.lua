@@ -94,10 +94,11 @@ function Module.Ui()
                 TextColor3 = Color3.fromRGB(197,197,197);
                 TextScaled = true;
                 Visible = Computed(function()
-                    if Module.ActiveBoard:get().Status ~= "" then
-                        return false
+                    local board = Module.ActiveBoard:get()
+                    if board.Status == "" and (board.White == game.Players.LocalPlayer or board.Black == game.Players.LocalPlayer) then
+                        return true
                     end
-                    return true
+                    return false
                 end);
                 [Event "MouseButton1Up"] = function()
                     if Module.Confirmation:get() == 2 then
@@ -121,10 +122,11 @@ function Module.Ui()
                 TextColor3 = Color3.fromRGB(197,197,197);
                 TextScaled = true;
                 Visible = Computed(function()
-                    if Module.ActiveBoard:get().Status ~= "" then
-                        return false
+                    local board = Module.ActiveBoard:get()
+                    if board.Status == "" and (board.White == game.Players.LocalPlayer or board.Black == game.Players.LocalPlayer) then
+                        return true
                     end
-                    return true
+                    return false
                 end);
                 [Event "MouseButton1Up"] = function()
                     if Module.Confirmation:get() == 1 then

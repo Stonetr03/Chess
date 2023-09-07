@@ -198,6 +198,21 @@ Knit.Start({ServicePromises = false}):andThen(function()
     Menu.Challenge = function(p)
         Chess:Challenge(p)
     end
+    Menu.Spectate = function(hash)
+        if ActiveGame:get() == "" then
+            -- Get Board
+            local newBoard = Chess:GetBoardFromHash(hash)
+            if newBoard and newBoard.Board then
+                -- Tell server to listen
+                if Chess:ListenHash(hash,true) == true then
+                    ActiveGame:set(hash);
+                    ActiveBoard:set(newBoard);
+                    RenderingBoard:set(newBoard.Board);
+                    BoardFlipped:set(false);
+                end
+            end
+        end
+    end
 
     -- Init
     for _,g in pairs(Chess:GetGames()) do

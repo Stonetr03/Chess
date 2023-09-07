@@ -70,6 +70,7 @@ function Chess.Client:GetBoardFromHash(p,Hash)
     if core.Games[Hash] then
         return core.Games[Hash]
     end
+    return nil
 end
 
 function Chess.Client:ListenHash(p,Hash,Value)
@@ -78,12 +79,15 @@ function Chess.Client:ListenHash(p,Hash,Value)
             if table.find(GameListeners[Hash],p) == nil then
                 table.insert(GameListeners[Hash],p)
             end
+            return true
         elseif Value == false then
             if table.find(GameListeners[Hash],p) then
                 table.remove(GameListeners[Hash],table.find(GameListeners[Hash],p))
             end
+            return true
         end
     end
+    return false
 end
 
 -- Make Move

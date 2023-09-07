@@ -22,8 +22,16 @@ function Module.Ui()
         SizeConstraint = Enum.SizeConstraint.RelativeYY;
         ZIndex = 1000;
         Visible = Computed(function()
-            if Module.ActiveGame:get() ~= "" and Module.ActiveBoard:get().Status ~= "" then
-                return true
+            if Module.ActiveGame:get() ~= "" then
+                local board = Module.ActiveBoard:get()
+                if board.White == game.Players.LocalPlayer or board.Black == game.Players.LocalPlayer then
+                    if board.Status ~= "" then
+                        return true
+                    end
+                else
+                    return true
+                end
+                
             end
             return false
         end);
@@ -45,8 +53,15 @@ function Module.AUi()
         ScaleType = Enum.ScaleType.Fit;
         Size = UDim2.new(0.12,0,0.08,0);
         Visible = Computed(function()
-            if Module.ActiveBoard:get().Status ~= "" then
-                return true
+            if Module.ActiveGame:get() ~= "" then
+                local board = Module.ActiveBoard:get()
+                if board.White == game.Players.LocalPlayer or board.Black == game.Players.LocalPlayer then
+                    if board.Status ~= "" then
+                        return true
+                    end
+                else
+                    return true
+                end
             end
             return false
         end);
