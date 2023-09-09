@@ -56,33 +56,36 @@ end
 local ClickHighlight = ""
 local MoveHighlight1 = ""
 local MoveHighlight2 = ""
+local Premove1 = ""
+local Premove2 = ""
 function Module:RemoveClickHighlight()
-    if ClickHighlight ~= "" and ClickHighlight ~= MoveHighlight1 and ClickHighlight ~= MoveHighlight2 then
-        local render = Module.Rendering:get()
-        if render[ClickHighlight] then
-            render[ClickHighlight] = nil
-            Module.Rendering:set(render);
-            ClickHighlight = ""
-        end
+    if ClickHighlight ~= "" then
+        local toRemove = ClickHighlight
+        ClickHighlight = ""
+        Module:RemoveHighlight(toRemove)
     end
 end
 
 function Module:SetClickHighlight(Sqr)
     Module:RemoveClickHighlight()
-    local render = Module.Rendering:get()
-    render[Sqr] = "Yellow";
-    Module.Rendering:set(render);
     ClickHighlight = Sqr
+    if Sqr ~= Premove1 and Sqr ~= Premove2 then
+        local render = Module.Rendering:get()
+        render[Sqr] = "Yellow";
+        Module.Rendering:set(render);
+    end
 end
 
 function Module:RemoveMoveHighlight()
-    if MoveHighlight1 ~= "" or MoveHighlight2 ~= "" then
-        local render = Module.Rendering:get()
-        render[MoveHighlight1] = nil
-        render[MoveHighlight2] = nil;
-        Module.Rendering:set(render);
+    if MoveHighlight1 ~= "" then
+        local toRemove = MoveHighlight1
         MoveHighlight1 = ""
+        Module:RemoveHighlight(toRemove)
+    end
+    if MoveHighlight2 ~= "" then
+        local toRemove = MoveHighlight2
         MoveHighlight2 = ""
+        Module:RemoveHighlight(toRemove)
     end
 end
 
@@ -111,8 +114,35 @@ function Module:SetMoveHighlight(Moves)
     end
 end
 
+function Module:RemovePremoveHighlight()
+    if Premove1 ~= "" then
+        local toRemove = Premove1
+        Premove1 = ""
+        Module:RemoveHighlight(toRemove)
+    end
+    if Premove2 ~= "" then
+        local toRemove = Premove2
+        Premove2 = ""
+        Module:RemoveHighlight(toRemove)
+    end
+end
+
+function Module:SetPremoveHighlight(Sq1,Sq2)
+    Module:RemovePremoveHighlight()
+    local render = Module.Rendering:get()
+    render[Sq1] = "Red";
+    render[Sq2] = "Red";
+    Module.Rendering:set(render);
+    Premove1 = Sq1;
+    Premove2 = Sq2;
+end
+
 function Module:RemoveHighlight(Sqr)
-    if MoveHighlight1 == Sqr or MoveHighlight2 == Sqr or ClickHighlight == Sqr then
+    if Premove1 == Sqr or Premove2 == Sqr then
+        local render = Module.Rendering:get()
+        render[Sqr] = "Red";
+        Module.Rendering:set(render);
+    elseif MoveHighlight1 == Sqr or MoveHighlight2 == Sqr or ClickHighlight == Sqr then
         local render = Module.Rendering:get()
         render[Sqr] = "Yellow";
         Module.Rendering:set(render);
