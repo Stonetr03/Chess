@@ -29,6 +29,9 @@ local Module = {
     RenderingBoard = nil;
     BoardFlipped = nil;
     MakeMove = nil;
+
+    ClearPremove = nil;
+    SetPremove = nil;
 }
 
 local BoardRef = Value()
@@ -340,12 +343,14 @@ function Module.Ui()
 
                                 local function MakeMove(NewSqr)
                                     NewSqr = Modifiers(o.Piece,OldSqr,NewSqr)
-                                    if ClientCore:CheckMove(Module.ActiveBoard:get(),OldSqr,NewSqr) == false or PromoteVis:get() == true or Module.ActiveBoard:get().Status ~= "" then
+                                    local Color = ""
+                                    if Module.ActiveBoard:get().White and Module.ActiveBoard:get().White == game.Players.LocalPlayer then
+                                        Color = "w"
+                                    elseif Module.ActiveBoard:get().Black and Module.ActiveBoard:get().Black == game.Players.LocalPlayer then
+                                        Color = "b"
+                                    end
+                                    if (Module.ActiveBoard:get().Turn == Color and ClientCore:CheckMove(Module.ActiveBoard:get(),OldSqr,NewSqr) == false) or PromoteVis:get() == true or Module.ActiveBoard:get().Status ~= "" then
                                         Position:set(startPos)
-                                        if con then
-                                            con:Disconnect()
-                                            con = nil;
-                                        end
                                         return
                                     end
                                     -- Make sure its your piece and not opponants piece
@@ -376,10 +381,6 @@ function Module.Ui()
                                                         until Yield == true
                                                         if ExtraCode == "" then
                                                             Position:set(startPos)
-                                                            if con then
-                                                                con:Disconnect()
-                                                                con = nil;
-                                                            end
                                                             return
                                                         end
                                                     end
@@ -395,7 +396,38 @@ function Module.Ui()
                                                     end
                                                 else
                                                     -- Premove
-                                                    Position:set(startPos)
+                                                    local ExtraCode = ""
+                                                    if o.Piece == "P" and tonumber(string.sub(NewSqr,2,2)) == 8 then
+                                                        -- Promote
+                                                        task.wait()
+                                                        PromoteVis:set(true)
+                                                        PromoteOffset:set(0)
+                                                        PromotePosition:set(Position:get())
+                                                        local Yield = false
+                                                        PromoteSignal:Once(function(Piece)
+                                                            ExtraCode = Piece
+                                                            Yield = true
+                                                        end)
+                                                        repeat
+                                                            task.wait()
+                                                        until Yield == true
+                                                        if ExtraCode == "" then
+                                                            Position:set(startPos)
+                                                            Dots.RenderingDots:set({
+                                                                Callback = nil;
+                                                                ToRender = {};
+                                                            })
+                                                            Highlights:RemoveClickHighlight()
+                                                            return
+                                                        end
+                                                    end
+                                                    -- Premove
+                                                    Highlights:SetPremoveHighlight(NewSqr,OldSqr)
+                                                    Module.SetPremove(OldSqr,NewSqr,ExtraCode,function()
+                                                        Position:set(startPos)
+                                                        Highlights:RemovePremoveHighlight()
+                                                    end)
+                                                    --Position:set(startPos)
                                                     Dots.RenderingDots:set({
                                                         Callback = nil;
                                                         ToRender = {};
@@ -433,10 +465,6 @@ function Module.Ui()
                                                         until Yield == true
                                                         if ExtraCode == "" then
                                                             Position:set(startPos)
-                                                            if con then
-                                                                con:Disconnect()
-                                                                con = nil;
-                                                            end
                                                             return
                                                         end
                                                     end
@@ -452,7 +480,38 @@ function Module.Ui()
                                                     end
                                                 else
                                                     -- Premove
-                                                    Position:set(startPos)
+                                                    local ExtraCode = ""
+                                                    if o.Piece == "p" and tonumber(string.sub(NewSqr,2,2)) == 1 then
+                                                        -- Promote
+                                                        task.wait()
+                                                        PromoteVis:set(true)
+                                                        PromoteOffset:set(175)
+                                                        PromotePosition:set(Position:get())
+                                                        local Yield = false
+                                                        PromoteSignal:Once(function(Piece)
+                                                            ExtraCode = Piece
+                                                            Yield = true
+                                                        end)
+                                                        repeat
+                                                            task.wait()
+                                                        until Yield == true
+                                                        if ExtraCode == "" then
+                                                            Position:set(startPos)
+                                                            Dots.RenderingDots:set({
+                                                                Callback = nil;
+                                                                ToRender = {};
+                                                            })
+                                                            Highlights:RemoveClickHighlight()
+                                                            return
+                                                        end
+                                                    end
+                                                    -- Premove
+                                                    Highlights:SetPremoveHighlight(NewSqr,OldSqr)
+                                                    Module.SetPremove(OldSqr,NewSqr,ExtraCode,function()
+                                                        Position:set(startPos)
+                                                        Highlights:RemovePremoveHighlight()
+                                                    end)
+                                                    --Position:set(startPos)
                                                     Dots.RenderingDots:set({
                                                         Callback = nil;
                                                         ToRender = {};
@@ -504,6 +563,7 @@ function Module.Ui()
                                             dragging = true
                                             dragStart = input.Position
                                             startPos = Position:get()
+                                            mousePos = Vector2.new(input.Position.X,input.Position.Y)
 
                                             -- Offset
                                             mouseOffset = Vector2.new( input.Position.X - (PieceRef:get().AbsolutePosition.X + (PieceRef:get().AbsoluteSize.X / 2)), input.Position.Y -  (PieceRef:get().AbsolutePosition.Y + (PieceRef:get().AbsoluteSize.Y / 2)) )
@@ -512,18 +572,17 @@ function Module.Ui()
                                             con = input.Changed:Connect(function()
                                                 if input.UserInputState == Enum.UserInputState.End then
                                                     dragging = false
+                                                    -- Cleanup
+                                                    if con then
+                                                        con:Disconnect()
+                                                        con = nil;
+                                                    end
                                                     -- Get Nearest Square
                                                     local NewSqr = GetNewSquare(mousePos)
                                                     if NewSqr then
                                                         MakeMove(NewSqr)
                                                     else
                                                         Position:set(startPos)
-                                                    end
-
-                                                    -- Cleanup
-                                                    if con then
-                                                        con:Disconnect()
-                                                        con = nil;
                                                     end
                                                 end
                                             end)
@@ -554,6 +613,9 @@ UserInputService.InputBegan:Connect(function(input)
         Arrows.Rendering:set({})
     elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
         -- Highlight / Arrows
+        if typeof(Module.ClearPremove) == "function" then
+            Module.ClearPremove()
+        end
         if Module.ActiveGame:get() ~= "" then
             local NewSqr = GetNewSquare(Vector2.new(input.Position.X,input.Position.Y))
             if NewSqr then

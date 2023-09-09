@@ -3,6 +3,7 @@
 local Fusion = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Fusion"))
 local Picker = require(game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("_external"):WaitForChild("Picker"))
 local Knit = require(game.ReplicatedStorage.Packages:WaitForChild("Knit"))
+local ClientCore = require(script:WaitForChild("ClientCore"))
 local tab = require(script:WaitForChild("tab"))
 
 local New = Fusion.New
@@ -22,7 +23,6 @@ local Close = require(script:WaitForChild("Close"))
 local Settings = require(script:WaitForChild("Settings"));
 
 -- Values
-
 local ActiveGame = Value("")
 local ActiveBoard = Value({})
 local RenderingBoard = Value({
@@ -36,6 +36,7 @@ local RenderingBoard = Value({
     [8] = "        ";
 })
 local BoardFlipped = Value(false)
+local Premoves = nil
 
 Board.ActiveGame = ActiveGame
 Board.ActiveBoard = ActiveBoard
@@ -178,6 +179,16 @@ Knit.Start({ServicePromises = false}):andThen(function()
     -- Game Update Events
     Chess.UpdateGame:Connect(function(Hash,Moves,Newboard)
         if ActiveGame:get() == Hash then
+            if Premoves ~= nil then
+                -- Run Premove
+                if typeof(Premoves) == "table" and ((Newboard.Turn == "w" and Newboard.White == game.Players.LocalPlayer) or (Newboard.Turn == "b" and Newboard.Black == game.Players.LocalPlayer)) and ClientCore:CheckMove(Newboard,Premoves[1],Premoves[2]) == true then
+                    -- Send Move
+                    task.spawn(function()
+                        Board.MakeMove(Premoves[1],Premoves[2],Premoves[3])
+                    end)
+                end
+                Board.ClearPremove();
+            end
             ActiveBoard:set(Newboard);
             RenderingBoard:set(Newboard.Board)
             if Newboard.Status then
@@ -270,6 +281,21 @@ Knit.Start({ServicePromises = false}):andThen(function()
         Chess:SetSetting(k,v)
     end
     Settings:Initset()
+
+    -- Premoves
+    Board.SetPremove = function(OldSqr,NewSqr,ExtraCode,Callback)
+        Board.ClearPremove();
+        Premoves = {OldSqr,NewSqr,ExtraCode,Callback}
+    end
+    Board.ClearPremove = function()
+        if Premoves ~= nil then
+            if typeof(Premoves[4]) == "function" then
+                Premoves[4]()
+            end
+            Premoves = nil
+        end
+    end
+
 end):catch(warn)
 
 game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
