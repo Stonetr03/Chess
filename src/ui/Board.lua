@@ -39,6 +39,8 @@ local BoardAbsPos = Value()
 
 Annotations.BoardAbsSize = BoardAbsSize;
 Annotations.BoardAbsPos = BoardAbsPos;
+Resize.BoardAbsSize = BoardAbsSize;
+Resize.BoardAbsPos = BoardAbsPos;
 
 local PieceColors = {
     w = {"R","N","B","Q","K","P"};
@@ -277,9 +279,9 @@ function Module.Ui()
         Size = UDim2.new(1,0,1,0);
         [Children] = {
             Board = New "Frame" {
-                AnchorPoint = Vector2.new(1,0);
+                AnchorPoint = Vector2.new(0.5,0);
                 BackgroundColor3 = Pieces.BoardBColor;
-                Position = UDim2.new(0.75,0,0.12,0);
+                Position = UDim2.new(0.5,0,0.12,0);
                 Size = Resize.BoardSize;
                 SizeConstraint = Enum.SizeConstraint.RelativeYY;
                 ZIndex = 5;

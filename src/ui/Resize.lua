@@ -10,11 +10,14 @@ local Event = Fusion.OnEvent
 local Value = Fusion.Value
 
 local Module = {
-    BoardSize = Value(UDim2.new(0.75,0,0.75,0))
+    BoardSize = Value(UDim2.new(0.75,0,0.75,0));
+    BoardAbsSize = nil;
+    BoardAbsPos = nil;
 }
 
 local Size = Value(0.75)
 local AbsSize = Value()
+local AbsPos = Value()
 
 -- Dragging
 local Position = Value(UDim2.new(1,5,1,-20))
@@ -31,6 +34,17 @@ local function update(input)
 	if newPos.Y.Scale < 0.001 then
 		newPos = UDim2.new(1,5,0.001,-20)
 	end
+
+    -- X
+    local BoardSize = Module.BoardAbsSize:get();
+    local BoardPos = Module.BoardAbsPos:get();
+    if BoardSize and BoardPos then
+        local ToX = BoardSize.X + BoardPos.X - AbsPos:get().X + 5
+        if ToX then
+            newPos = UDim2.new(UDim.new(0,ToX),newPos.Y)
+        end
+    end
+
 	Position:set(newPos)
     Module.BoardSize:set(UDim2.new(Size:get() * Position:get().Y.Scale,0,Size:get() * Position:get().Y.Scale,0))
 end
@@ -48,10 +62,11 @@ function Module.Ui()
         Size = Computed(function()
             return UDim2.new(Size:get(),0,Size:get(),0);
         end);
-        Position = UDim2.new(0.75,0,0.12,0);
-        AnchorPoint = Vector2.new(1,0);
+        Position = UDim2.new(0.5,0,0.12,0);
+        AnchorPoint = Vector2.new(.5,0);
         SizeConstraint = Enum.SizeConstraint.RelativeYY;
         [Fusion.Out "AbsoluteSize"] = AbsSize;
+        [Fusion.Out "AbsolutePosition"] = AbsPos;
 
         [Children] = New "ImageButton" {
             Size = UDim2.new(0,20,0,20);
