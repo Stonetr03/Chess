@@ -13,8 +13,9 @@ local Event = Fusion.OnEvent
 local Module = {
     BoardFlipped = nil;
     ActiveBoard = nil;
-    ScreenGuiRef = Value();
-    BoardRef = nil;
+    ScreenGuiSize = Value();
+    BoardAbsSize = nil;
+    BoardAbsPos = nil;
     Confirmation = Value(0); -- 0:Not Visible, 1:Resign, 2:Draw, 3:Draw Offer
 
     Resign = nil;
@@ -73,10 +74,15 @@ function Module.Ui()
         AnchorPoint = Vector2.new(0,0.5);
         Position = UDim2.new(1,5,0.5,0);
         Size = Computed(function()
-            local ScreenGui = Module.ScreenGuiRef:get()
-            local Board = Module.BoardRef:get()
-            if ScreenGui and Board then
-                return UDim2.new(0,((ScreenGui.AbsoluteSize.X - Board.AbsolutePosition.X) - Board.AbsoluteSize.X) - 10,0.6,0)
+            local ScreenGui = Module.ScreenGuiSize:get()
+            local BoardSize = Module.BoardAbsSize:get()
+            local BoardPos = Module.BoardAbsPos:get()
+            if ScreenGui and BoardSize and BoardPos then
+                local size = ((ScreenGui.X - BoardPos.X) - BoardSize.X) - 10
+                if size > BoardSize.X * .5 then
+                    size = BoardSize.X * .5
+                end
+                return UDim2.new(0,size,0.6,0)
             end
             return UDim2.new(0,0,0,0)
         end);

@@ -34,8 +34,11 @@ local Module = {
     SetPremove = nil;
 }
 
-local BoardRef = Value()
-Annotations.BoardRef = BoardRef;
+local BoardAbsSize = Value()
+local BoardAbsPos = Value()
+
+Annotations.BoardAbsSize = BoardAbsSize;
+Annotations.BoardAbsPos = BoardAbsPos;
 
 local PieceColors = {
     w = {"R","N","B","Q","K","P"};
@@ -64,7 +67,7 @@ MouseButtonSignal:Connect(function()
 end);
 
 function PromoteUi()
-    New "Frame" {
+    return New "Frame" {
         BackgroundColor3 = Color3.fromRGB(162,162,162);
         BorderColor3 = Color3.fromRGB(27,42,53);
         BorderMode = Enum.BorderMode.Outline;
@@ -79,7 +82,6 @@ function PromoteUi()
             end
             return Vector2.new(0,0)
         end);
-        Parent = BoardRef;
 
         [Children] = {
             New "ImageButton" {
@@ -239,8 +241,8 @@ function GetNewSquare(Position: Vector2)
     if typeof(Position) ~= "Vector2" then
         return nil
     end
-    local BoardSize = BoardRef:get().AbsoluteSize
-    local BoardPosition = BoardRef:get().AbsolutePosition
+    local BoardSize = BoardAbsSize:get()
+    local BoardPosition = BoardAbsPos:get()
     local PieceSize = BoardSize / 8
 
     for file = 0,7,1 do
@@ -281,7 +283,8 @@ function Module.Ui()
                 Size = Resize.BoardSize;
                 SizeConstraint = Enum.SizeConstraint.RelativeYY;
                 ZIndex = 5;
-                [Fusion.Ref] = BoardRef;
+                [Fusion.Out "AbsoluteSize"] = BoardAbsSize;
+                [Fusion.Out "AbsolutePosition"] = BoardAbsPos;
                 [Children] = {
                     Squares = RenderBoardBG();
                     Promote = PromoteUi();
