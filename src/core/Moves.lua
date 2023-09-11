@@ -44,7 +44,7 @@ local CheckFuncs = {
     ["k"] = King;
 }
 
-function Module:GetLegalMoves(Board,Square)
+function Module:GetLegalMoves(Board: table, Square: string)
     -- Get Squares
     if string.len(Square) ~= 2 then return {} end
 

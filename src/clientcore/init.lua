@@ -149,8 +149,8 @@ function Module:GetLegalMoves(Board: table,Square: string,CheckCheck: boolean)
                 if m[2] == "castle" then
                     if PreCheck == false then
                         table.insert(PostCheckMoves,m)
-                        castle = true
                     end
+                    castle = true
                 elseif m[2] == "Promote" then
                     TmpBoard = Module:SetTmpSquare(TmpBoard,m[1],m[3])
                 else

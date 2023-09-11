@@ -50,8 +50,11 @@ function Module:CheckForCheckmate(Board,Color)
             local File = Files[string.lower(string.sub(p,1,1))]
             NewBoard = Module:SetTmpSquare(NewBoard,m,string.sub(NewBoard.Board[Rank],File,File))
             NewBoard = Module:SetTmpSquare(NewBoard,p," ")
+            local skip = false
             if typeof(m) == "table" then
                 if m[2] == "castle" then
+                    -- Skip
+                    skip = true
                 elseif m[2] == "Promote" then
                     NewBoard = Module:SetTmpSquare(NewBoard,m[1],m[3])
                 else
@@ -59,9 +62,11 @@ function Module:CheckForCheckmate(Board,Color)
                     NewBoard = Module:SetTmpSquare(NewBoard,m[2]," ")
                 end
             end
-            local NewKing = Moves:GetSquareFromPiece(NewBoard,ColorPieces[Color])
-            if Moves:CheckifCheck(NewBoard,NewKing,Color) == false then
-                return false
+            if skip == false then
+                local NewKing = Moves:GetSquareFromPiece(NewBoard,ColorPieces[Color])
+                if Moves:CheckifCheck(NewBoard,NewKing,Color) == false then
+                    return false
+                end
             end
         end
     end

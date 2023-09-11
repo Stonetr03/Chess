@@ -532,10 +532,27 @@ function Module.Ui()
                                     end
                                 end
 
-                                Ui[i] = New "ImageButton" {
+                                local inCheck = false
+                                local sqrSize = UDim2.new(0.125,0,0.125,0);
+                                local newPos = Position:get()
+                                if o.Piece == "K" then
+                                    if ClientCore:CheckifCheck(Module.ActiveBoard:get(),OldSqr,"w") == true then
+                                        inCheck = true
+                                        sqrSize = UDim2.new(1,0,1,0)
+                                        Position:set(UDim2.new(0,0,0,0))
+                                    end
+                                elseif o.Piece == "k" then
+                                    if ClientCore:CheckifCheck(Module.ActiveBoard:get(),OldSqr,"b") == true then
+                                        inCheck = true
+                                        sqrSize = UDim2.new(1,0,1,0)
+                                        Position:set(UDim2.new(0,0,0,0))
+                                    end
+                                end
+
+                                local NewUi = New "ImageButton" {
                                     Name = o.Piece;
                                     BackgroundTransparency = 1;
-                                    Size = UDim2.new(0.125,0,0.125);
+                                    Size = sqrSize;
                                     Position = Position;
                                     Image = Pieces.ImageId;
                                     ImageRectSize = Vector2.new(175, 175);
@@ -599,6 +616,21 @@ function Module.Ui()
                                         end
                                     end;
                                 };
+
+                                if inCheck == true then
+                                    Ui[i] = New "ImageLabel" {
+                                        Name = o.Piece;
+                                        BackgroundTransparency = 1;
+                                        Size = UDim2.new(0.125,0,0.125,0);
+                                        Position = newPos;
+                                        ZIndex = 3;
+                                        Image = "rbxassetid://14747375562";
+                                        ImageColor3 = Color3.new(1,0,0);
+                                        [Children] = NewUi;
+                                    }
+                                else
+                                    Ui[i] = NewUi
+                                end
                             end
                         end
 
