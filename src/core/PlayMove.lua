@@ -239,6 +239,8 @@ function Module:Move(Board,Player,Square,Move,Promote) -- Square:OldSquare, Move
             -- EnPassant
             Board = Module:SetSquare(Board,LegalMoves[CheckMove][2]," ")
             table.insert(ReturnMoves,LegalMoves[CheckMove][2] .. "-x")
+            Board.Move50 = -1
+            isCastle = string.sub(Square,1,1) .. "x" .. Move
         end
     end
 
