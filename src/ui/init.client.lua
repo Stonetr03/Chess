@@ -172,6 +172,17 @@ Knit.Start({ServicePromises = false}):andThen(function()
                 else
                     BoardFlipped:set(false)
                 end
+                -- Cleanup
+                Arrows.Rendering:set({});
+                Dots.RenderingDots:set({
+                    Callback = nil;
+                    ToRender = {};
+                });
+                Highlights:RemoveClickHighlight();
+                Highlights:RemoveMoveHighlight();
+                Highlights:RemovePremoveHighlight();
+                Highlights:RemoveAll();
+                Board.ClearPremove();
             end
         end
     end)
@@ -194,6 +205,8 @@ Knit.Start({ServicePromises = false}):andThen(function()
             if Newboard.Status then
                 if Newboard.Status ~= "" and LastStatus == "" then
                     GameOver.Visible:set(true);
+                elseif Newboard.Status == "" then
+                    GameOver.Visible:set(false);
                 end
                 LastStatus = Newboard.Status
             end

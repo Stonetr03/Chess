@@ -24,7 +24,13 @@ local WColor = Value(Color3.fromRGB(122,122,122))
 local BColor = Value(Color3.fromRGB(122,122,122))
 
 local WinColor = Color3.fromRGB(0,170,0);
-local DrawColor = Color3.fromRGB(122,122,122)
+local DrawColor = Color3.fromRGB(122,122,122);
+
+local CooldownTimer = 0;
+
+Fusion.Observer(Module.Visible):onChange(function()
+    CooldownTimer = os.time() + 2
+end)
 
 function Module:init()
     Fusion.Observer(Module.ActiveBoard):onChange(function()
@@ -189,8 +195,8 @@ function Module.Ui()
 end
 
 UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        if Module.Visible:get() == true then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if Module.Visible:get() == true and CooldownTimer <= os.time() then
             Module.Visible:set(false)
         end
     end

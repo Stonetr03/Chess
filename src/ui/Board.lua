@@ -644,7 +644,7 @@ function Module.Ui()
 end
 
 UserInputService.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         MouseButtonSignal:Fire()
         Highlights:RemoveAll()
         Arrows.Rendering:set({})
@@ -659,6 +659,9 @@ UserInputService.InputBegan:Connect(function(input)
                 RightClickDown = NewSqr
             end
         end
+    end
+    if input.UserInputType == Enum.UserInputType.Touch then
+        Module.ClearPremove()
     end
 end)
 
